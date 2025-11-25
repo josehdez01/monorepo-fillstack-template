@@ -8,7 +8,10 @@
     "scripts": {
         "build": "tsdown",
         "typecheck": "tsc --noEmit",
-        "lint": "oxlint 'src/**/*.{ts,tsx}'"
+        "lint": "oxlint --fix 'src/**/*.{ts,tsx}'",
+        "lint:check": "oxlint 'src/**/*.{ts,tsx}'",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
     },
     "devDependencies": {
         "tsdown": "0.15.12",

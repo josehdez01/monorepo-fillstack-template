@@ -33,10 +33,24 @@ function loadEnvFile(path: string) {
 
 if (existsSync('.env.test.local')) {
     loadEnvFile('.env.test.local');
+} else if (existsSync('.env.test')) {
+    loadEnvFile('.env.test');
 } else if (existsSync('.env')) {
     loadEnvFile('.env');
 }
 
 if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = 'test';
+}
+
+if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/monorepo_test';
+}
+
+if (!process.env.REDIS_URL) {
+    process.env.REDIS_URL = 'redis://localhost:6379';
+}
+
+if (!process.env.ROLE) {
+    process.env.ROLE = 'all';
 }

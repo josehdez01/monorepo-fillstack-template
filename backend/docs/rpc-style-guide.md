@@ -16,10 +16,10 @@ Layout
 - contracts/src/orpc/contract.ts — root aggregator (PLOP injects here)
 - backend/src/rpc/routers/<ns>.ts — handlers per namespace
 - backend/src/rpc/routers/index.ts — composes all namespaces
-- backend/src/rpc/middleware/** — auth + AppError → ORPCError mapping
-- backend/src/rpc/contexts/** — base/session contexts
+- backend/src/rpc/middleware/\*\* — auth + AppError → ORPCError mapping
+- backend/src/rpc/contexts/\*\* — base/session contexts
 - backend/src/modules/<feature>/service.ts — feature services (pure functions)
-- backend/src/db/** — centralized data layer (entities, repositories, ORM)
+- backend/src/db/\*\* — centralized data layer (entities, repositories, ORM)
 
 Generator
 

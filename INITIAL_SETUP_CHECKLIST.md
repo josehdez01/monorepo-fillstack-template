@@ -350,9 +350,9 @@ includes a short rationale. Run from the repo root unless noted.
           parallel: true
           commands:
             lint:
-              run: pnpm lint
+              run: pnpm lint:check
             format:
-              run: pnpm format -- --write
+              run: pnpm format
         pre-push:
           commands:
             typecheck:
@@ -389,7 +389,7 @@ includes a short rationale. Run from the repo root unless noted.
                 with:
                   version: 10.20.0
               - run: pnpm install --frozen-lockfile
-              - run: pnpm lint
+              - run: pnpm lint:check
               - run: pnpm typecheck
               - run: pnpm test -- --coverage
               - run: pnpm build
@@ -415,7 +415,7 @@ includes a short rationale. Run from the repo root unless noted.
 - [ ] Smoke tests
     - Commands:
         ```sh
-        pnpm lint
+        pnpm lint:check
         pnpm typecheck
         pnpm test -- --coverage
         pnpm build

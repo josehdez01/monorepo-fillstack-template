@@ -2,7 +2,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-type Options = { scope: string; dry: boolean };
+interface Options {
+    scope: string;
+    dry: boolean;
+}
 
 function parseArgs(argv: string[]): Options {
     let scope = '@acme';
@@ -13,9 +16,13 @@ function parseArgs(argv: string[]): Options {
             scope = argv[++i]!;
             continue;
         }
-        if (a === '--dry') dry = true;
+        if (a === '--dry') {
+            dry = true;
+        }
     }
-    if (!scope.startsWith('@')) scope = `@${scope}`;
+    if (!scope.startsWith('@')) {
+        scope = `@${scope}`;
+    }
     if (!/^@[a-z0-9][a-z0-9-_]*$/i.test(scope)) {
         throw new Error(`Invalid scope '${scope}'. Use e.g. @acme or @my-org`);
     }
@@ -27,19 +34,28 @@ const IGNORE_DIRS = new Set(['node_modules', 'dist', 'build', '.turbo', '.git'])
 async function walk(dir: string, out: string[] = []): Promise<string[]> {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const e of entries) {
-        if (IGNORE_DIRS.has(e.name)) continue;
+        if (IGNORE_DIRS.has(e.name)) {
+            continue;
+        }
         const p = path.join(dir, e.name);
-        if (e.isDirectory()) await walk(p, out);
-        else out.push(p);
+        if (e.isDirectory()) {
+            await walk(p, out);
+        } else {
+            out.push(p);
+        }
     }
     return out;
 }
 
 async function updateFile(file: string, from: string, to: string, dry: boolean) {
     const buf = await fs.readFile(file, 'utf8');
-    if (!buf.includes(from)) return;
+    if (!buf.includes(from)) {
+        return;
+    }
     const next = buf.split(from).join(to);
-    if (!dry) await fs.writeFile(file, next);
+    if (!dry) {
+        await fs.writeFile(file, next);
+    }
 }
 
 async function rewritePackageJson(file: string, scope: string, dry: boolean) {
@@ -49,13 +65,17 @@ async function rewritePackageJson(file: string, scope: string, dry: boolean) {
     if (name.startsWith('@template/')) {
         const renamed = name.replace(/^@template\//, `${scope}/`);
         pkg.name = renamed;
-        if (!dry) await fs.writeFile(file, JSON.stringify(pkg, null, 4) + '\n');
+        if (!dry) {
+            await fs.writeFile(file, `${JSON.stringify(pkg, null, 4)}\n`);
+        }
         return true;
     }
     // Root package.json named @template/monorepo — re-scope
     if (name === '@template/monorepo') {
         pkg.name = `${scope}/monorepo`;
-        if (!dry) await fs.writeFile(file, JSON.stringify(pkg, null, 4) + '\n');
+        if (!dry) {
+            await fs.writeFile(file, `${JSON.stringify(pkg, null, 4)}\n`);
+        }
         return true;
     }
     return false;
@@ -99,8 +119,10 @@ async function main() {
     console.log('- Run: pnpm install');
 }
 
-main().catch((err) => {
+try {
+    await main();
+} catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
-});
+}

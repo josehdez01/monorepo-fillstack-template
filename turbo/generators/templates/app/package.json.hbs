@@ -1,35 +1,43 @@
 {
-"name": "@template/{{name}}",
-"version": "0.0.0",
-"private": true,
-"type": "module",
-"scripts": {
-"dev": "vite",
-"build": "vite build && tsc",
-"preview": "vite preview",
-"test": "vitest run"
-},
-"dependencies": {
-"@orpc/client": "1.10.2",
-"@orpc/contract": "1.10.2",
-"@orpc/tanstack-query": "1.10.2",
-"@tanstack/react-query": "5.90.5",
-"@tanstack/react-router": "1.134.9",
-"@template/contracts": "workspace:*",
-"@template/ui": "workspace:*",
-"react": "19.2.0",
-"react-dom": "19.2.0"
-},
-"devDependencies": {
-"@tanstack/router-devtools": "1.134.9",
-"@tanstack/router-plugin": "1.134.9",
-"@types/node": "22.10.5",
-"@types/react": "19.2.2",
-"@types/react-dom": "19.2.2",
-"@vitejs/plugin-react": "5.1.0",
-"jsdom": "27.1.0",
-"typescript": "5.9.3",
-"vite": "7.1.12",
-"vitest": "4.0.6"
-}
+    "name": "frontend/{{name}}",
+    "private": true,
+    "type": "module",
+    "license": "MIT",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && tsc",
+        "preview": "vite preview",
+        "test": "vitest run",
+        "lint": "oxlint --fix .",
+        "lint:check": "oxlint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
+    "dependencies": {
+        "@orpc/client": "1.10.2",
+        "@orpc/contract": "1.10.2",
+        "@orpc/tanstack-query": "1.10.2",
+        "@tanstack/react-query": "5.90.5",
+        "@tanstack/react-router": "1.134.9",
+        "@template/contracts": "workspace:*",
+        "@template/env": "workspace:*",
+        "@template/ui": "workspace:*",
+        "react": "19.2.0",
+        "react-dom": "19.2.0",
+        "zod": "4.1.12"
+    },
+    "devDependencies": {
+        "@tanstack/router-devtools": "1.134.9",
+        "@tanstack/router-plugin": "1.134.9",
+        "@types/react": "19.2.2",
+        "@types/react-dom": "19.2.2",
+        "@vitejs/plugin-react": "5.1.0",
+        "autoprefixer": "10.4.21",
+        "jsdom": "27.1.0",
+        "postcss": "8.5.6",
+        "tailwindcss": "4.1.16",
+        "typescript": "5.9.3",
+        "vite": "7.1.12",
+        "vitest": "4.0.6"
+    }
 }

@@ -2,6 +2,23 @@
 
 A production-ready, high-performance monorepo template designed for modern full-stack development. Built with speed, scalability, and developer experience in mind.
 
+## Architecture Overview
+
+This template implements a strict, type-safe flow from Database to UI:
+
+```mermaid
+flowchart LR
+    DB[(Postgres)] <--> ORM[MikroORM Entities]
+    ORM <--> Service[Backend Services]
+    Service <--> RPC[ORPC Router]
+    RPC -- "Typed Contract" --> Client[Frontend ORPC Client]
+    Client <--> React[React Components]
+```
+
+- **Backend**: Hono server exposing an ORPC API.
+- **Contracts**: Shared package (`packages/contracts`) defining Zod schemas and RPC procedures.
+- **Frontend**: React apps consuming the API via a strongly-typed client.
+
 ## Features
 
 - **Monorepo Management**: [Turborepo](https://turbo.build/) + [pnpm workspaces](https://pnpm.io/workspaces)
@@ -20,70 +37,63 @@ A production-ready, high-performance monorepo template designed for modern full-
 
 - Node.js >= 24.11.0
 - pnpm >= 10.20.0
+- Docker (for local database)
 
-### Installation
+> **Tip:** This repo includes a `.tool-versions` file. If you use [asdf](https://asdf-vm.com/), you can install the exact versions by running:
+>
+> ```bash
+> asdf install
+> ```
 
-1.  Clone the repository:
+### Quick Start
+
+1.  **Clone & Setup**
 
     ```bash
-    git clone <your-repo-url>
-    cd <your-repo-name>
-    ```
+    # Clone into a new directory (e.g., my-app)
+    git clone git@github.com:josehdez01/monorepo-fillstack-template.git my-app
+    cd my-app
 
-2.  Install dependencies:
+    # Optional: Reset git history to start fresh
+    rm -rf .git
+    git init
+    git add .
+    git commit -m "Initial commit"
 
-    ```bash
+    # Install dependencies
     pnpm install
     ```
 
-3.  Set up environment variables (backend):
-    - The backend ships with sensible defaults in `backend/.env.example` and `backend/.env.test.example`.
-    - Materialize them into local files:
+2.  **Setup Environment**
 
     ```bash
+    # Materialize .env files from examples
     pnpm -C backend env:setup
-    # or overwrite existing files
-    pnpm -C backend env:setup -- --force
     ```
 
-4.  Start local infrastructure (Postgres + Redis):
+3.  **Start Infrastructure**
 
     ```bash
+    # Starts Postgres & Redis
     docker compose -f infra/docker-compose.yml up -d
-    # or use the helper the backend uses for tests
-    pnpm -C backend test:db:up
     ```
 
-5.  Create your first entity and run migrations:
-    - Generate an entity + repository (e.g., `User`):
+4.  **Initialize Database**
 
     ```bash
-    pnpm gen db-entity --args name=User
-    ```
-
-    - Ensure the entity is exported at top‑level in `backend/src/db/entities/<name>.ts` (the generator does this by default).
-    - Generate the entity registry and create an initial migration:
-
-    ```bash
+    # Generate entities registry and run migrations
     pnpm -C backend db:entities:gen
-    pnpm -C backend db:migrate:create
-    ```
-
-    - Apply migrations to your local DB:
-
-    ```bash
     pnpm -C backend db:migrate:up
     ```
 
-    Notes:
-    - This template uses an explicit entities registry to avoid auto‑discovery pitfalls across environments.
-    - Migrations are not committed by default; generate them locally when schema changes. If you prefer committing migrations, just add the `backend/migrations` folder to version control.
-
-6.  Start development servers:
+5.  **Run Development Servers**
 
     ```bash
     pnpm dev:all
     ```
+
+    - Backend: http://localhost:3000
+    - Frontend (User App): http://localhost:5173
 
 Backend runtime roles
 
@@ -213,7 +223,8 @@ pnpm mint -- --scope @acme --dry
 
 - **Build**: `pnpm build`
 - **Test**: `pnpm test`
-- **Lint**: `pnpm lint`
+- **Lint (fixes)**: `pnpm lint`
+- **Lint check (CI)**: `pnpm lint:check`
 - **Format**: `pnpm format`
 - **Typecheck**: `pnpm typecheck`
 

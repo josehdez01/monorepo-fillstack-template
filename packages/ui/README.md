@@ -21,7 +21,16 @@ import { Button as RetroButton } from '@template/ui/retroui/Button';
 import { Button as ShadcnButton } from '@template/ui/shadcn/button';
 ```
 
-Peer dependencies:
-
-- `react` and `react-dom` (matching your app)
 - `tailwindcss` (tested with v4+)
+
+## Adding Components
+
+This package is configured with `shadcn/ui`. To add a new component:
+
+```bash
+cd packages/ui
+npx shadcn@latest add button
+```
+
+The component will be placed in `src/retroui` (aliased as `@/retroui`).
+You can then export it from `src/index.ts` or `src/retroui/index.ts` to make it available to consumers.

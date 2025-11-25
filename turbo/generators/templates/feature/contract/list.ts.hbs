@@ -1,0 +1,5 @@
+import { oc } from '@orpc/contract';
+import { z } from 'zod';
+
+export const list = oc
+.output(z.object({ message: z.string() }));

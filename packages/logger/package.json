@@ -8,7 +8,10 @@
     "scripts": {
         "build": "tsdown",
         "typecheck": "tsc --noEmit -p tsconfig.json",
-        "lint": "oxlint ."
+        "lint": "oxlint --fix .",
+        "lint:check": "oxlint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
     },
     "license": "MIT",
     "dependencies": {

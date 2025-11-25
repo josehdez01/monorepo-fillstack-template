@@ -56,10 +56,13 @@ importers:
                 specifier: 1.10.2
                 version: 1.10.2(ws@8.18.3)
             '@template/contracts':
-                specifier: workspace:contracts
+                specifier: workspace:*
                 version: link:../contracts
+            '@template/env':
+                specifier: workspace:*
+                version: link:../packages/env
             '@template/logger':
-                specifier: workspace:packages
+                specifier: workspace:*
                 version: link:../packages/logger
             bullmq:
                 specifier: 5.63.0
@@ -98,6 +101,9 @@ importers:
             tsx:
                 specifier: 4.20.6
                 version: 4.20.6
+            vite-tsconfig-paths:
+                specifier: 5.1.4
+                version: 5.1.4(typescript@5.9.3)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.5.1))
             vitest:
                 specifier: 4.0.6
                 version: 4.0.6(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.6.4(@types/node@24.9.2)(typescript@5.9.3))(tsx@4.20.6)(yaml@2.5.1)
@@ -408,6 +414,18 @@ importers:
             wrangler:
                 specifier: 4.45.3
                 version: 4.45.3
+
+    packages/e2e:
+        devDependencies:
+            '@playwright/test':
+                specifier: 1.49.1
+                version: 1.49.1
+            '@types/node':
+                specifier: 22.10.5
+                version: 22.10.5
+            typescript:
+                specifier: 5.9.3
+                version: 5.9.3
 
     packages/env:
         dependencies:
@@ -2154,6 +2172,14 @@ packages:
                 integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==,
             }
 
+    '@playwright/test@1.49.1':
+        resolution:
+            {
+                integrity: sha512-Ky+BVzPz8pL6PQxHqNRW1k3mIyv933LML7HktS8uik0bUXNCdPhoS/kLihiO1tMf/egaJb4IutXd7UywvXEW+g==,
+            }
+        engines: { node: '>=18' }
+        hasBin: true
+
     '@poppinss/colors@4.1.5':
         resolution:
             {
@@ -3834,6 +3860,12 @@ packages:
             }
         deprecated: This is a stub types definition. minimatch provides its own type definitions, so you do not need this installed.
 
+    '@types/node@22.10.5':
+        resolution:
+            {
+                integrity: sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==,
+            }
+
     '@types/node@24.9.2':
         resolution:
             {
@@ -5166,6 +5198,14 @@ packages:
                 integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==,
             }
 
+    fsevents@2.3.2:
+        resolution:
+            {
+                integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==,
+            }
+        engines: { node: ^8.16.0 || ^10.6.0 || >=11.0.0 }
+        os: [darwin]
+
     fsevents@2.3.3:
         resolution:
             {
@@ -5281,6 +5321,12 @@ packages:
                 integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==,
             }
         engines: { node: '>=10' }
+
+    globrex@0.1.2:
+        resolution:
+            {
+                integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==,
+            }
 
     goober@2.1.18:
         resolution:
@@ -6521,6 +6567,22 @@ packages:
             }
         hasBin: true
 
+    playwright-core@1.49.1:
+        resolution:
+            {
+                integrity: sha512-BzmpVcs4kE2CH15rWfzpjzVGhWERJfmnXmniSyKeRZUs9Ws65m+RGIi7mjJK/euCegfn3i7jvqWeWyHe9y3Vgg==,
+            }
+        engines: { node: '>=18' }
+        hasBin: true
+
+    playwright@1.49.1:
+        resolution:
+            {
+                integrity: sha512-VYL8zLoNTBxVOrJBbDuRgDWa3i+mfQgDTrL8Ah9QXZ7ax4Dsj0MSq5bYgytRnDVVe+njoKnfsYkH3HzqVj5UZA==,
+            }
+        engines: { node: '>=18' }
+        hasBin: true
+
     pony-cause@2.1.11:
         resolution:
             {
@@ -7641,6 +7703,19 @@ packages:
             '@swc/wasm':
                 optional: true
 
+    tsconfck@3.1.6:
+        resolution:
+            {
+                integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==,
+            }
+        engines: { node: ^18 || >=20 }
+        hasBin: true
+        peerDependencies:
+            typescript: ^5.0.0
+        peerDependenciesMeta:
+            typescript:
+                optional: true
+
     tsdown@0.15.12:
         resolution:
             {
@@ -7800,6 +7875,12 @@ packages:
                 integrity: sha512-QCkQoOnJF8L107gxfHL0uavn7WD9b3dpBcFX6HtfQYmjw2YzWxGuFQ0N0J6tE9oguCBJn9KOvfqYDCMPHIZrBA==,
             }
 
+    undici-types@6.20.0:
+        resolution:
+            {
+                integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==,
+            }
+
     undici-types@7.16.0:
         resolution:
             {
@@ -7953,6 +8034,17 @@ packages:
             {
                 integrity: sha512-PnpQQMuxlwYdocC8fIJqVXvkeViHYzotI+NJrCuav0ZYFoq912ZHBk3mCeuj+5/VpodOjPe1z0Fk2ihgzlXqjQ==,
             }
+
+    vite-tsconfig-paths@5.1.4:
+        resolution:
+            {
+                integrity: sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==,
+            }
+        peerDependencies:
+            vite: '*'
+        peerDependenciesMeta:
+            vite:
+                optional: true
 
     vite@7.1.12:
         resolution:
@@ -9186,6 +9278,10 @@ snapshots:
         optional: true
 
     '@pinojs/redact@0.4.0': {}
+
+    '@playwright/test@1.49.1':
+        dependencies:
+            playwright: 1.49.1
 
     '@poppinss/colors@4.1.5':
         dependencies:
@@ -10440,6 +10536,10 @@ snapshots:
         dependencies:
             minimatch: 10.1.1
 
+    '@types/node@22.10.5':
+        dependencies:
+            undici-types: 6.20.0
+
     '@types/node@24.9.2':
         dependencies:
             undici-types: 7.16.0
@@ -11223,6 +11323,9 @@ snapshots:
 
     fs.realpath@1.0.0: {}
 
+    fsevents@2.3.2:
+        optional: true
+
     fsevents@2.3.3:
         optional: true
 
@@ -11290,6 +11393,8 @@ snapshots:
             ignore: 5.3.2
             merge2: 1.4.1
             slash: 3.0.0
+
+    globrex@0.1.2: {}
 
     goober@2.1.18(csstype@3.1.3):
         dependencies:
@@ -12034,6 +12139,14 @@ snapshots:
             sonic-boom: 4.2.0
             thread-stream: 3.1.0
 
+    playwright-core@1.49.1: {}
+
+    playwright@1.49.1:
+        dependencies:
+            playwright-core: 1.49.1
+        optionalDependencies:
+            fsevents: 2.3.2
+
     pony-cause@2.1.11: {}
 
     postcss-value-parser@4.2.0: {}
@@ -12676,6 +12789,10 @@ snapshots:
             v8-compile-cache-lib: 3.0.1
             yn: 3.1.1
 
+    tsconfck@3.1.6(typescript@5.9.3):
+        optionalDependencies:
+            typescript: 5.9.3
+
     tsdown@0.15.12(typescript@5.9.3):
         dependencies:
             ansis: 4.2.0
@@ -12770,6 +12887,8 @@ snapshots:
             defu: 6.1.4
             jiti: 2.6.1
             quansync: 0.2.11
+
+    undici-types@6.20.0: {}
 
     undici-types@7.16.0: {}
 
@@ -12872,6 +12991,17 @@ snapshots:
             d3-shape: 3.2.0
             d3-time: 3.1.0
             d3-timer: 3.0.1
+
+    vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.5.1)):
+        dependencies:
+            debug: 4.4.3
+            globrex: 0.1.2
+            tsconfck: 3.1.6(typescript@5.9.3)
+        optionalDependencies:
+            vite: 7.1.12(@types/node@24.9.2)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.5.1)
+        transitivePeerDependencies:
+            - supports-color
+            - typescript
 
     vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.5.1):
         dependencies:

@@ -1,0 +1,20 @@
+import { implement } from '@orpc/server';
+import { appContract } from '@template/contracts/orpc/contract';
+import { create{{pascalCase name}}Service } from '../../modules/{{kebabCase name}}/service.ts';
+import { makeAuthMiddleware } from '../middleware/auth.ts';
+import type { BaseContext } from '../contexts/baseContext.ts';
+
+export function build{{pascalCase name}}() {
+const os = implement(appContract.{{camelCase name}}).$context<BaseContext>().use(makeAuthMiddleware());
+
+    const list = os.list.handler(async ({ context }) => {
+    const svc = create{{pascalCase name}}Service({ em: context.em });
+    return await svc.findAll();
+    });
+
+    return {
+    {{camelCase name}}: os.router({
+    list,
+    }),
+    } as const;
+    }

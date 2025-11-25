@@ -2,6 +2,15 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+function toPascalCase(base: string): string {
+    const stem = base.replace(/\.[^/.]+$/, '');
+    return stem
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(Boolean)
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join('');
+}
+
 async function main() {
     const scriptDir = path.dirname(new URL(import.meta.url).pathname);
     const repoRoot = path.resolve(scriptDir, '..');
@@ -18,18 +27,9 @@ async function main() {
             f !== 'base.ts',
     );
 
-    function toPascalCase(base: string): string {
-        const stem = base.replace(/\.[^/.]+$/, '');
-        return stem
-            .split(/[^a-zA-Z0-9]+/)
-            .filter(Boolean)
-            .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-            .join('');
-    }
-
     const entries = files
         .map((f) => ({ file: f, name: toPascalCase(f) }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .toSorted((a, b) => a.name.localeCompare(b.name));
 
     const lines: string[] = [];
     lines.push('// This file is generated. Do not edit manually.');
@@ -47,8 +47,10 @@ async function main() {
     console.log(`Updated ${path.relative(repoRoot, outFile)} with ${entries.length} entities.`);
 }
 
-main().catch((err) => {
+try {
+    await main();
+} catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
-});
+}

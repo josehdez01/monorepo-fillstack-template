@@ -20,7 +20,10 @@
         "db:migrate:create": "tsx src/scripts/migrations-create.ts",
         "db:migrate:up": "tsx src/scripts/migrations-up.ts",
         "db:migrate:down": "tsx src/scripts/migrations-down.ts",
-        "lint": "oxlint .",
+        "lint": "oxlint --fix .",
+        "lint:check": "oxlint .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
         "worker:sum": "echo 'Deprecated: workers run in-process via queueService.initQueues'",
         "start:worker": "ROLE=worker pnpm start"
     },
@@ -34,13 +37,14 @@
         "@mikro-orm/postgresql": "6.5.9",
         "@orpc/server": "1.10.2",
         "@template/contracts": "workspace:*",
+        "@template/env": "workspace:*",
         "@template/logger": "workspace:*",
         "bullmq": "5.63.0",
         "hono": "4.10.4",
         "ioredis": "5.8.2",
-        "torero-mq": "^0.1.0",
         "pg": "8.16.3",
         "pino": "10.1.0",
+        "torero-mq": "^0.1.0",
         "zod": "4.1.12"
     },
     "devDependencies": {
@@ -49,6 +53,7 @@
         "@types/node": "24.9.2",
         "tsdown": "0.15.12",
         "tsx": "4.20.6",
+        "vite-tsconfig-paths": "5.1.4",
         "vitest": "4.0.6"
     }
 }

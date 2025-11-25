@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { parseNodeEnv } from '@template/env';
 
-const EnvSchema = z.object({
+const EnvSchema = {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z
         .string()
@@ -10,9 +11,9 @@ const EnvSchema = z.object({
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
     ROLE: z.enum(['api', 'worker', 'all']).default('all'),
-});
+};
 
-export type Env = z.infer<typeof EnvSchema>;
+export type Env = z.infer<z.ZodObject<typeof EnvSchema>>;
 
 let cached: Env | undefined;
 
@@ -20,13 +21,6 @@ export function getEnv(): Env {
     if (cached) {
         return cached;
     }
-    const parsed = EnvSchema.safeParse(process.env);
-    if (!parsed.success) {
-        const issues = parsed.error.issues
-            .map((i) => `${i.path.join('.')}: ${i.message}`)
-            .join(', ');
-        throw new Error(`Invalid environment: ${issues}`);
-    }
-    cached = parsed.data;
+    cached = parseNodeEnv(EnvSchema) as Env;
     return cached;
 }

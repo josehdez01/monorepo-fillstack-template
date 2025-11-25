@@ -9,7 +9,9 @@
             "dependsOn": ["^typecheck"]
         },
         "lint": {},
+        "lint:check": {},
         "format": {},
+        "format:check": {},
         "test": {
             "dependsOn": ["build"],
             "outputs": ["coverage/**"]

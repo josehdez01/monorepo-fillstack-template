@@ -1,21 +1,36 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+function toPascalCase(base) {
+    return base
+        .replace(/\.[^/.]+$/, '')
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(Boolean)
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join('');
+}
+
 async function regenerateEntitiesRegistry(startDir) {
     // Resolve repo root by walking up until backend/src/db/entities exists
     let dir = startDir;
     try {
         const stat = await fs.stat(dir);
-        if (!stat.isDirectory()) dir = path.dirname(dir);
+        if (!stat.isDirectory()) {
+            dir = path.dirname(dir);
+        }
     } catch {}
     while (true) {
         const probe = path.join(dir, 'backend', 'src', 'db', 'entities');
         try {
             const s = await fs.stat(probe);
-            if (s.isDirectory()) break;
+            if (s.isDirectory()) {
+                break;
+            }
         } catch {}
         const parent = path.dirname(dir);
-        if (parent === dir) break;
+        if (parent === dir) {
+            break;
+        }
         dir = parent;
     }
 
@@ -31,17 +46,9 @@ async function regenerateEntitiesRegistry(startDir) {
             f !== 'index.ts' &&
             f !== 'base.ts',
     );
-    function toPascalCase(base) {
-        return base
-            .replace(/\.[^/.]+$/, '')
-            .split(/[^a-zA-Z0-9]+/)
-            .filter(Boolean)
-            .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-            .join('');
-    }
     const entries = files
         .map((f) => ({ file: f, name: toPascalCase(f) }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .toSorted((a, b) => a.name.localeCompare(b.name));
     const lines = [];
     lines.push('// This file is generated. Do not edit manually.');
     lines.push('// Regenerate via turbo generator or pnpm db:entities:gen');
@@ -160,6 +167,11 @@ export default function generator(plop) {
                 path: 'frontend/{{name}}/src/api/orpc-client.ts',
                 templateFile: 'templates/app/src/api/orpc-client.ts.hbs',
             },
+            {
+                type: 'add',
+                path: 'frontend/{{name}}/src/styles.css',
+                templateFile: 'templates/app/src/styles.css.hbs',
+            },
         ],
     });
 
@@ -209,6 +221,67 @@ export default function generator(plop) {
                 return msg;
             },
             // Intentionally no service/use-case generation; keep services hand-written
+        ],
+    });
+
+    // Feature generator — Full stack vertical slice (Contract + Backend + RPC)
+    plop.setGenerator('feature', {
+        description: 'Generate a new feature (Contract + Backend Module + RPC Router)',
+        prompts: [
+            {
+                type: 'input',
+                name: 'name',
+                message: 'Feature name (e.g. posts, comments)',
+            },
+        ],
+        actions: [
+            // 1. Contract
+            {
+                type: 'add',
+                path: 'contracts/src/orpc/{{kebabCase name}}/index.ts',
+                templateFile: 'templates/feature/contract/index.ts.hbs',
+            },
+            {
+                type: 'add',
+                path: 'contracts/src/orpc/{{kebabCase name}}/list.ts',
+                templateFile: 'templates/feature/contract/list.ts.hbs',
+            },
+            {
+                type: 'modify',
+                path: 'contracts/src/orpc/contract.ts',
+                pattern: /(import.*from.*;\n)(?!import)/,
+                template: "$1import { {{camelCase name}} } from './{{kebabCase name}}/index.ts';\n",
+            },
+            {
+                type: 'modify',
+                path: 'contracts/src/orpc/contract.ts',
+                pattern: /(export const appContract = oc\.router\({)/,
+                template: '$1\n    {{camelCase name}},',
+            },
+            // 2. Backend Module
+            {
+                type: 'add',
+                path: 'backend/src/modules/{{kebabCase name}}/service.ts',
+                templateFile: 'templates/feature/service.ts.hbs',
+            },
+            // 3. RPC Router
+            {
+                type: 'add',
+                path: 'backend/src/rpc/routers/{{kebabCase name}}.ts',
+                templateFile: 'templates/feature/router.ts.hbs',
+            },
+            {
+                type: 'modify',
+                path: 'backend/src/rpc/routers/index.ts',
+                pattern: /(import.*from.*;\n)(?!import)/,
+                template: "$1import { build{{pascalCase name}} } from './{{kebabCase name}}.ts';\n",
+            },
+            {
+                type: 'modify',
+                path: 'backend/src/rpc/routers/index.ts',
+                pattern: /(export const router = os\.use\(makeAppErrorMiddleware\(\)\)\.router\({)/,
+                template: '$1\n    ...build{{pascalCase name}}(),',
+            },
         ],
     });
 }
