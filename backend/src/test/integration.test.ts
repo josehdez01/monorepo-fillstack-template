@@ -9,6 +9,10 @@ describe('RPC Integration', () => {
     let orm: MikroORM;
 
     beforeAll(async () => {
+        // Ensure clean DB state
+        const { TestDbManager } = await import('../test/test-db.ts');
+        const manager = new TestDbManager();
+        await manager.startWithEmptyDB(process.env.DATABASE_URL!);
         orm = await initORM();
     });
 

@@ -45,6 +45,7 @@ beforeAll(async () => {
     process.env.DATABASE_URL = url;
 
     try {
+        await mgr.startWithEmptyDB(url);
         const { default: ormConfig } = await import('../../../mikro-orm.config.ts');
         orm = await MikroORM.init(ormConfig);
     } catch (err) {

@@ -135,6 +135,24 @@ export class TestDbManager {
         );
         await query(this.adminUrl, `DROP DATABASE IF EXISTS ${quoteIdent(name)}`);
     }
+
+    async startWithEmptyDB(dbUrl: string): Promise<void> {
+        // Initialize ORM to get metadata
+        const { default: ormConfig } = await import('../../mikro-orm.config.ts');
+        const orm = await MikroORM.init({
+            ...ormConfig,
+            clientUrl: dbUrl,
+            allowGlobalContext: true, // Allow for test context
+        });
+
+        try {
+            const generator = orm.getSchemaGenerator();
+            // Truncate all tables to ensure clean state
+            await generator.refreshDatabase();
+        } finally {
+            await orm.close(true);
+        }
+    }
 }
 
 function quoteIdent(name: string): string {
