@@ -60,9 +60,10 @@ single source of truth for where code lives and how it is wired together.
 │     └─ .env.example
 │
 ├─ packages/                    # Shared internal libraries
-│  ├─ tsconfig/                 # Shared tsconfig presets
+│  ├─ env/                      # Node/Vite env parsing helpers
 │  ├─ logger/                   # pino‑based logger
-│  └─ ui/                       # shared UI components
+│  ├─ ui/                       # shared UI components
+│  └─ e2e/                      # Playwright end-to-end tests
 │
 ├─ infra/
 │  └─ docker-compose.yml        # Postgres + Redis for local dev

@@ -7,15 +7,15 @@ import './styles.css';
 import reportWebVitals from './reportWebVitals.ts';
 import { makeClient } from '@/api/orpc-client';
 import { createTanstackQueryUtils } from '@orpc/tanstack-query';
-import { parseViteEnv } from '@template/env';
-import { z } from 'zod';
+import { getPublicEnv } from './env.ts';
 
 const rootElement = document.getElementById('app');
 if (rootElement && !rootElement.innerHTML) {
-    const env = parseViteEnv({
-        VITE_RPC_URL: z.string().url().default('http://localhost:3000'),
+    const env = getPublicEnv();
+    const client = makeClient({
+        baseUrl: env.VITE_RPC_URL,
+        validateRequests: env.VITE_ORPC_VALIDATE_REQUESTS,
     });
-    const client = makeClient(env.VITE_RPC_URL);
     const orpc = createTanstackQueryUtils(client);
     const router = createRouter({ routeTree, context: { client, orpc, authed: true } });
     const queryClient = new QueryClient();

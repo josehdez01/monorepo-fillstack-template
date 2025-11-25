@@ -109,20 +109,15 @@ async function main() {
     } catch {}
 
     const msg = dry ? '[DRY RUN] Mint finished without writing changes.' : 'Mint complete.';
-    // eslint-disable-next-line no-console
     console.log(`${msg} New scope: ${to}`);
-    // eslint-disable-next-line no-console
     console.log('Next steps:');
-    // eslint-disable-next-line no-console
     console.log('- Review package names and imports');
-    // eslint-disable-next-line no-console
     console.log('- Run: pnpm install');
 }
 
 try {
     await main();
 } catch (err) {
-    // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
 }

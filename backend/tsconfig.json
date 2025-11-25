@@ -10,7 +10,9 @@
             "@template/contracts/*": ["../contracts/src/*"],
             "@template/contracts/shared/*": ["../contracts/src/shared/*"],
             "@template/contracts/orpc/*": ["../contracts/src/orpc/*"],
-            "@template/contracts/orpc/contract": ["../contracts/src/orpc/contract.ts"]
+            "@template/contracts/orpc/contract": ["../contracts/src/orpc/contract.ts"],
+            "@template/contracts/types/*": ["../contracts/src/types/*"],
+            "@template/contracts/utils/*": ["../contracts/src/utils/*"]
         }
     },
     "include": ["src", "mikro-orm.config.ts", "../contracts/src/**/*.ts"]

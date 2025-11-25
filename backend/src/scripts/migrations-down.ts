@@ -7,7 +7,6 @@ async function main() {
     try {
         const migrator = orm.getMigrator();
         await migrator.down();
-        // eslint-disable-next-line no-console
         console.log('[migrations] Down completed');
     } finally {
         await orm.close(true);
@@ -17,7 +16,6 @@ async function main() {
 try {
     await main();
 } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('[migrations] down error', err);
     process.exit(1);
 }

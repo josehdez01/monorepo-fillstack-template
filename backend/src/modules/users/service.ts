@@ -23,8 +23,8 @@ export function createUsersService(deps: { em: EntityManager }) {
             return toUserDTO(user);
         },
 
-        async getById(id: number): Promise<UserDTO> {
-            const user = await repo.getById(id as unknown as User['id']);
+        async getById(id: User['id']): Promise<UserDTO> {
+            const user = await repo.getById(id);
             if (!user) {
                 throw new NotFoundError('User not found');
             }

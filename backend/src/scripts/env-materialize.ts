@@ -6,7 +6,6 @@ async function ensureFile(from: string, to: string, { force = false } = {}) {
     try {
         if (!force) {
             await fs.access(to);
-            // eslint-disable-next-line no-console
             console.log(`[env] Skipped: ${path.basename(to)} already exists`);
             return;
         }
@@ -15,7 +14,6 @@ async function ensureFile(from: string, to: string, { force = false } = {}) {
     }
     const src = await fs.readFile(from);
     await fs.writeFile(to, src);
-    // eslint-disable-next-line no-console
     console.log(`[env] Wrote ${path.basename(to)} from ${path.basename(from)}`);
 }
 
@@ -36,7 +34,6 @@ async function main() {
 try {
     await main();
 } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('[env] setup error', err);
     process.exit(1);
 }

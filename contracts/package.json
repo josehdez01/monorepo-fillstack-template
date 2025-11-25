@@ -21,12 +21,28 @@
             "types": "./dist/orpc/*.d.ts",
             "import": "./dist/orpc/*.js",
             "default": "./dist/orpc/*.js"
+        },
+        "./types/*": {
+            "types": "./dist/types/*.d.ts",
+            "import": "./dist/types/*.js",
+            "default": "./dist/types/*.js"
+        },
+        "./utils/*": {
+            "types": "./dist/utils/*.d.ts",
+            "import": "./dist/utils/*.js",
+            "default": "./dist/utils/*.js"
         }
     },
     "typesVersions": {
         "*": {
             "orpc/*": [
                 "src/orpc/*"
+            ],
+            "types/*": [
+                "src/types/*"
+            ],
+            "utils/*": [
+                "src/utils/*"
             ]
         }
     },

@@ -22,10 +22,8 @@ async function main() {
             ? await migrator.createMigration()
             : await migrator.createInitialMigration();
         if (!res.fileName) {
-            // eslint-disable-next-line no-console
             console.log('[migrations] No changes detected.');
         } else {
-            // eslint-disable-next-line no-console
             console.log(`[migrations] Created: ${res.fileName}`);
         }
     } finally {
@@ -36,7 +34,6 @@ async function main() {
 try {
     await main();
 } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('[migrations] error', err);
     process.exit(1);
 }

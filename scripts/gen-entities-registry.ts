@@ -43,14 +43,12 @@ async function main() {
     lines.push('');
 
     await fs.writeFile(outFile, lines.join('\n'));
-    // eslint-disable-next-line no-console
     console.log(`Updated ${path.relative(repoRoot, outFile)} with ${entries.length} entities.`);
 }
 
 try {
     await main();
 } catch (err) {
-    // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
 }

@@ -11,7 +11,7 @@ const EnvSchema = {
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
     ROLE: z.enum(['api', 'worker', 'all']).default('all'),
-};
+} satisfies z.ZodRawShape;
 
 export type Env = z.infer<z.ZodObject<typeof EnvSchema>>;
 
@@ -21,6 +21,6 @@ export function getEnv(): Env {
     if (cached) {
         return cached;
     }
-    cached = parseNodeEnv(EnvSchema) as Env;
+    cached = parseNodeEnv(EnvSchema);
     return cached;
 }

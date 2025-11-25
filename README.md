@@ -93,7 +93,7 @@ flowchart LR
     ```
 
     - Backend: http://localhost:3000
-    - Frontend (User App): http://localhost:5173
+    - Frontend (User App): http://localhost:5175
 
 Backend runtime roles
 
@@ -117,8 +117,9 @@ Frontend env defaults
 │   └── admin_app/      # Admin dashboard
 ├── packages/           # Shared internal libraries
 │   ├── ui/             # Design system & UI components
-│   ├── utils/          # Shared utilities
-│   └── logger/         # Structured logging
+│   ├── env/            # Env parsing helpers for Node/Vite
+│   ├── logger/         # Structured logging
+│   └── e2e/            # Playwright end-to-end tests
 ├── infra/              # Infrastructure (Docker Compose)
 └── turbo/              # Turborepo configuration & generators
 ```
@@ -266,6 +267,8 @@ import type { EntityDTO } from '@mikro-orm/core';
 export type User = EntityDTO<typeof UserEntity>;
 // Use `User['id']` wherever an id type is needed.
 ```
+
+- In contracts, brand numeric IDs ad-hoc with `entityId('EntityName')` (`contracts/src/utils/entity-id.ts`) to keep schemas lean while preserving branded types end-to-end.
 
 ## License
 

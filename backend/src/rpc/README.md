@@ -8,9 +8,9 @@ Directory Layout
 - contracts/src/orpc/users/get-by-id.ts — contract
 - contracts/src/orpc/users/index.ts — namespace aggregator
 - contracts/src/orpc/contract.ts — root aggregator
-- backend/src/rpc/users.ts — handlers per namespace
-- backend/src/rpc/base.ts — preconfigured implementer (context + shared middlewares)
-- backend/src/rpc/auth.ts — dedupe-friendly auth middleware factory
+- backend/src/rpc/routers/\*.ts — handlers per namespace
+- backend/src/rpc/routers/index.ts — root implementer + shared middlewares
+- backend/src/rpc/middleware/\*.ts — auth + AppError mapping
 - backend/src/modules/users/service.ts — feature service (orchestrates repos)
 - backend/src/db/\*\* — data layer (entities, repositories, ORM)
 
@@ -25,10 +25,11 @@ Contract Example (users.create)
 // contracts/src/orpc/users/create.ts
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { entityId } from '../../utils/entity-id.ts';
 
 export const create = oc
     .input(z.object({ email: z.string().email() }))
-    .output(z.object({ id: z.number().int().positive(), email: z.string().email() }))
+    .output(z.object({ id: entityId('User'), email: z.string().email() }))
     .errors({
         VALIDATION_ERROR: { data: z.object({ field: z.string().optional() }).optional() },
     });
@@ -37,28 +38,23 @@ export const create = oc
 Implementer + Handler Example
 
 ```ts
-// backend/src/rpc/base.ts
-export function createRpcImplementer() {
-    const os0 = implement<AppContract>(appContract);
-    const os = os0.$context<RpcContext>();
-    const appErrorToOrpc = makeAppErrorMiddleware(os);
-    const base = os.use(appErrorToOrpc);
-    return { os, base };
-}
+// backend/src/rpc/routers/users.ts
+export function buildUsers() {
+    const os = implement(appContract.users).$context<BaseContext>().use(makeAuthMiddleware());
 
-// backend/src/rpc/users.ts
-export function buildUsers(os: ReturnType<typeof implement<AppContract>>) {
-    const create = os.users.create.$context<RpcContext>().handler(async ({ input, context }) => {
+    const create = os.create.handler(async ({ input, context }) => {
         const svc = createUsersService({ em: context.em });
         return await svc.create({ email: input.email });
     });
 
-    const getById = os.users.getById.$context<RpcContext>().handler(async ({ input, context }) => {
+    const getById = os.getById.handler(async ({ input, context }) => {
         const svc = createUsersService({ em: context.em });
         return await svc.getById(input.id);
     });
 
-    return { users: { create, getById } } as const;
+    return {
+        users: os.router({ create, getById }),
+    } as const;
 }
 ```
 
@@ -72,8 +68,8 @@ export function createUsersService({ em }: { em: EntityManager }) {
         async create({ email }: { email: string }) {
             return toDTO(await repo.create({ email }));
         },
-        async getById(id: number) {
-            const u = await repo.getById(id as unknown as User['id']);
+        async getById(id: User['id']) {
+            const u = await repo.getById(id);
             if (!u) throw new NotFoundError('User not found');
             return toDTO(u);
         },

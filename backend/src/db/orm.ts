@@ -1,6 +1,6 @@
 import { RequestContext } from '@mikro-orm/core';
 import { MikroORM } from '@mikro-orm/postgresql';
-
+import type { MiddlewareHandler } from 'hono';
 import ormConfig from '../../mikro-orm.config.ts';
 
 let ormInstance: MikroORM | undefined;
@@ -20,16 +20,10 @@ export function getORM(): MikroORM {
     return ormInstance;
 }
 
-export function makeOrmMiddleware(orm: MikroORM) {
-    return function ormMiddleware(
-        c: { set: (k: string, v: unknown) => void },
-        next: () => Promise<void>,
-    ) {
+export function makeOrmMiddleware(orm: MikroORM): MiddlewareHandler {
+    return async function ormMiddleware(c, next) {
         const em = orm.em.fork();
-        return RequestContext.create(em, () => {
-            // Attach to Hono context variables
-            // Hono augments at runtime; types are provided at app declaration site
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await RequestContext.create(em, () => {
             c.set('em', em);
             return next();
         });

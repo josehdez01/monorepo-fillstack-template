@@ -6,15 +6,35 @@ The backend is a Node.js application that can be deployed to any container-based
 
 ### Docker Build
 
-The repository includes a `Dockerfile` (or you can create one) optimized for Turborepo.
+Create a `backend/Dockerfile` to package the API/worker. Example:
 
-1.  **Build the image**:
+```dockerfile
+FROM node:24-alpine AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json backend/
+COPY contracts/package.json contracts/
+COPY packages packages
+RUN corepack enable && pnpm install --frozen-lockfile
 
-    ```bash
-    docker build -f backend/Dockerfile -t my-backend .
-    ```
+FROM deps AS build
+WORKDIR /app/backend
+RUN pnpm db:entities:gen
+RUN pnpm build
 
-    _Note: You may need to adjust the Dockerfile path or context depending on your setup._
+FROM node:24-alpine AS runner
+WORKDIR /app
+COPY --from=build /app/backend/dist ./dist
+COPY backend/package.json ./
+ENV NODE_ENV=production
+CMD ["node", "dist/index.js"]
+```
+
+Build it with:
+
+```bash
+docker build -f backend/Dockerfile -t my-backend .
+```
 
 2.  **Environment Variables**:
     Ensure the following variables are set in your production environment:

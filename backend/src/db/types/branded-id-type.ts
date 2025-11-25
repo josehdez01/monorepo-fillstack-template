@@ -1,7 +1,7 @@
 import { Type, ValidationError, type EntityProperty, type Platform } from '@mikro-orm/core';
 import type { Brand } from '../../types/brand.ts';
 
-export class BrandedIdType<Tag> extends Type<Brand<number, Tag>, number> {
+export class BrandedIdType<Tag extends string> extends Type<Brand<number, Tag>, number> {
     override convertToDatabaseValue(
         value: Brand<number, Tag> | number | undefined,
         _platform: Platform,
