@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "composite": true,
+        "outDir": "dist",
+        "types": ["node"],
+        "baseUrl": ".",
+        "paths": {
+            "@template/contracts/shared/*": ["../contracts/src/shared/*"],
+            "@template/contracts/orpc/*": ["../contracts/src/orpc/*"]
+        }
+    },
+    "include": ["src", "mikro-orm.config.ts"]
+}

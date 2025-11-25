@@ -1,0 +1,88 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": ["unicorn", "typescript", "oxc"],
+    "categories": {
+        "correctness": "error",
+        "suspicious": "error",
+        "style": "off",
+        "pedantic": "off"
+    },
+    "rules": {
+        // Core best practices and parity with ESLint recommended
+        "eqeqeq": "error",
+        "curly": "error",
+        "no-var": "error",
+        "prefer-const": "error",
+        "dot-notation": "error",
+        "no-duplicate-imports": "error",
+        "no-useless-catch": "error",
+        "array-callback-return": "error",
+        "no-constructor-return": "error",
+        "no-self-compare": "error",
+        "no-unreachable": "error",
+        "no-unsafe-finally": "error",
+        "use-isnan": "error",
+        "valid-typeof": "error",
+
+        // Style rules to reduce reliance on Prettier
+        "semi": ["error", "always"],
+        "quotes": ["error", "single", { "avoidEscape": true }],
+        "comma-dangle": ["error", "always-multiline"],
+        "prefer-template": "error",
+        "template-curly-spacing": ["error", "never"],
+        "no-trailing-spaces": "error",
+        "eol-last": ["error", "always"],
+        "no-multiple-empty-lines": ["warn", { "max": 1, "maxEOF": 0 }],
+        "no-ternary": "off",
+        "max-lines-per-function": "off",
+
+        // TypeScript recommended-like rules
+        "typescript/no-explicit-any": "error",
+        "typescript/no-floating-promises": "error",
+        "typescript/no-misused-promises": "error",
+        "typescript/await-thenable": "error",
+        "typescript/no-for-in-array": "error",
+        "typescript/no-implied-eval": "error",
+        "typescript/no-unnecessary-type-assertion": "warn",
+        "typescript/consistent-type-definitions": "warn",
+        "typescript/consistent-type-imports": "warn",
+        "typescript/prefer-as-const": "warn",
+
+        // Useful unicorn rules
+        "unicorn/prefer-top-level-await": "warn",
+        "unicorn/no-useless-spread": "warn",
+        "unicorn/no-useless-length-check": "warn",
+        "unicorn/filename-case": "off"
+    },
+    "settings": {
+        "jsx-a11y": {
+            "polymorphicPropName": null,
+            "components": {},
+            "attributes": {}
+        },
+        "next": { "rootDir": [] },
+        "react": { "formComponents": [], "linkComponents": [] },
+        "jsdoc": {
+            "ignorePrivate": false,
+            "ignoreInternal": false,
+            "ignoreReplacesDocs": true,
+            "overrideReplacesDocs": true,
+            "augmentsExtendsReplacesDocs": false,
+            "implementsReplacesDocs": false,
+            "exemptDestructuredRootsFromChecks": false,
+            "tagNamePreference": {}
+        },
+        "vitest": { "typecheck": false }
+    },
+    "env": { "builtin": true },
+    "globals": {},
+    "ignorePatterns": [
+        "node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.turbo/**",
+        "**/coverage/**",
+        "**/migrations/**",
+        "orpc_docs/**"
+    ]
+}

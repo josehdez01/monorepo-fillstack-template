@@ -1,0 +1,16 @@
+name = "template-user"
+main = "./cloudfate-worker.js"
+compatibility_date = "2025-07-12"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+[build]
+command = "pnpm run build"
+
+[env.staging]
+name = "template-user-staging"
+
+[env.production]
+name = "template-user-production"

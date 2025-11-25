@@ -1,0 +1,30 @@
+import type { EntityManager } from '@mikro-orm/core';
+import { {{properCase name}} } from '../entities/{{kebabCase name}}.ts';
+import type { {{properCase name}} as {{properCase name}}Type } from '../entities/{{kebabCase name}}.ts';
+import { createBaseRepository } from './base-repo.ts';
+import { ValidationError } from '../../errors/app-errors.ts';
+
+export type Create{{properCase name}}Input = Partial<Omit<{{properCase name}}Type, 'id' | 'createdAt' | 'updatedAt'>>;
+
+export interface {{properCase name}}Repository {
+    getById(id: {{properCase name}}Type['id']): Promise<{{properCase name}}Type | null>;
+    create(input: Create{{properCase name}}Input): Promise<{{properCase name}}Type>;
+    deleteById(id: {{properCase name}}Type['id']): Promise<void>;
+}
+
+export function create{{properCase name}}Repository(em: EntityManager): {{properCase name}}Repository {
+    const base = createBaseRepository<{{properCase name}}Type>(em, {{properCase name}});
+
+    return {
+        ...base,
+        // add custom domain methods here
+        // async findByTitle(title: string) {
+        //   return base._repo.findOne({ title });
+        // },
+        async create(input) {
+            // Example invariant; adapt to your domain
+            // if (!input.title) throw new ValidationError('title is required', 'title');
+            return base.create(input);
+        },
+    };
+}

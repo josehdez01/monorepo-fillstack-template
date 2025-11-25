@@ -1,0 +1,3 @@
+creation_rules:
+    - path_regex: ".*\\.env(\\.enc)?$"
+      age: ['REPLACE_WITH_AGE_PUBLIC_KEY']

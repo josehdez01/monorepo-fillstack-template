@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "jsx": "react-jsx",
+        "strict": true,
+        "noImplicitAny": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true,
+        "useUnknownInCatchVariables": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowImportingTsExtensions": true,
+        "declaration": true,
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "noEmit": true
+    }
+}

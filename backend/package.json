@@ -1,0 +1,53 @@
+{
+    "name": "@template/backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "vitest",
+        "test:db:up": "docker compose -f ../infra/docker-compose.yml up -d postgres",
+        "test:db:down": "docker compose -f ../infra/docker-compose.yml stop postgres",
+        "test:db:template": "tsx src/test/manage-template.ts ensure",
+        "test:db:template:rebuild": "tsx src/test/manage-template.ts rebuild",
+        "test:local": "pnpm test:db:up && pnpm test:db:template && vitest",
+        "test:local:rebuild": "pnpm test:db:up && TEST_DB_REBUILD_TEMPLATE=1 pnpm test:db:template:rebuild && vitest",
+        "db:entities:gen": "node --import tsx ../scripts/gen-entities-registry.ts",
+        "dev": "pnpm db:entities:gen && tsx --watch src/index.ts",
+        "build": "pnpm db:entities:gen && tsdown",
+        "start": "node dist/index.js",
+        "typecheck": "tsc --noEmit -p tsconfig.json",
+        "env:setup": "tsx src/scripts/env-materialize.ts",
+        "db:migrate:create": "tsx src/scripts/migrations-create.ts",
+        "db:migrate:up": "tsx src/scripts/migrations-up.ts",
+        "db:migrate:down": "tsx src/scripts/migrations-down.ts",
+        "lint": "oxlint .",
+        "worker:sum": "echo 'Deprecated: workers run in-process via queueService.initQueues'"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+        "@hono/node-server": "1.19.6",
+        "@mikro-orm/core": "6.5.9",
+        "@mikro-orm/postgresql": "6.5.9",
+        "@orpc/server": "1.10.2",
+        "@template/contracts": "workspace:contracts",
+        "@template/logger": "workspace:packages",
+        "bullmq": "5.63.0",
+        "hono": "4.10.4",
+        "ioredis": "5.8.2",
+        "torero-mq": "^0.1.0",
+        "pg": "8.16.3",
+        "pino": "10.1.0",
+        "zod": "4.1.12"
+    },
+    "devDependencies": {
+        "@mikro-orm/migrations": "6.5.9",
+        "@mikro-orm/reflection": "6.5.9",
+        "@types/node": "24.9.2",
+        "tsdown": "0.15.12",
+        "tsx": "4.20.6",
+        "vitest": "4.0.6"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "projectName": "frontend/landing_page",
+    "mode": "code-router",
+    "typescript": false,
+    "tailwind": false,
+    "packageManager": "pnpm",
+    "git": true,
+    "addOnOptions": {},
+    "version": 1,
+    "framework": "react-cra",
+    "chosenAddOns": []
+}

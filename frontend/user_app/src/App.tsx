@@ -1,0 +1,25 @@
+import logo from './logo.svg';
+import './App.css';
+import HelloMessage from '@/components/hello-message';
+import { Button } from '@template/ui/retroui/Button';
+
+export default function App() {
+    return (
+        <div className="App">
+            <header className="App-header">
+                <img src={logo} className="App-logo" alt="logo" />
+                <p>Monorepo Template - User App</p>
+                <HelloMessage />
+                <Button style={{ marginTop: '1rem' }}>RetroUI Button</Button>
+                <a
+                    className="App-link"
+                    href="https://tanstack.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Learn TanStack
+                </a>
+            </header>
+        </div>
+    );
+}

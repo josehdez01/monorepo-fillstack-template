@@ -1,0 +1,8 @@
+import type { AppClient } from '@/api/orpc-client';
+import type { createTanstackQueryUtils } from '@orpc/tanstack-query';
+
+export interface RouterContext {
+client: AppClient;
+orpc: ReturnType<typeof createTanstackQueryUtils<AppClient>>;
+    authed: boolean;
+    }

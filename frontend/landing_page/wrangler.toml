@@ -1,0 +1,16 @@
+name = "template-landing"
+main = "./cloudfate-worker.js"
+compatibility_date = "2025-07-12"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+
+[build]
+command = "pnpm run build"
+
+[env.staging]
+name = "template-landing-staging"
+
+[env.production]
+name = "template-landing-production"

@@ -1,0 +1,17 @@
+{
+    "name": "@template/{{name}}",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsdown",
+        "typecheck": "tsc --noEmit",
+        "lint": "oxlint 'src/**/*.{ts,tsx}'"
+    },
+    "devDependencies": {
+        "tsdown": "0.15.12",
+        "typescript": "5.9.3"
+    }
+}

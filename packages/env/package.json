@@ -1,0 +1,22 @@
+{
+    "name": "@template/env",
+    "version": "0.0.0",
+    "private": true,
+    "license": "MIT",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsdown",
+        "typecheck": "tsc --noEmit -p tsconfig.json",
+        "lint": "oxlint ."
+    },
+    "dependencies": {
+        "zod": "4.1.12"
+    },
+    "devDependencies": {
+        "tsdown": "0.15.12",
+        "typescript": "5.9.3",
+        "@types/node": "24.9.2"
+    }
+}

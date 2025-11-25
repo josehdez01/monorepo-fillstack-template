@@ -1,0 +1,59 @@
+{
+    "name": "@template/monorepo",
+    "version": "0.0.0",
+    "description": "A versatile, production-ready monorepo template with TypeScript, Turbo, Hono, and React.",
+    "main": "index.js",
+    "scripts": {
+        "test": "turbo run test",
+        "dev": "turbo run dev --filter='./backend' --parallel",
+        "dev:all": "turbo run dev --parallel",
+        "build": "turbo run build",
+        "lint": "turbo run lint && pnpm format:check",
+        "format": "turbo run format",
+        "format:check": "prettier --check .",
+        "typecheck": "turbo run typecheck",
+        "postinstall": "simple-git-hooks",
+        "gen": "turbo gen",
+        "mint": "tsx scripts/mint.ts"
+    },
+    "keywords": [
+        "monorepo",
+        "template",
+        "typescript",
+        "turbo",
+        "hono",
+        "react"
+    ],
+    "author": "",
+    "license": "MIT",
+    "type": "module",
+    "private": true,
+    "packageManager": "pnpm@10.20.0",
+    "engines": {
+        "node": ">=24.11.0"
+    },
+    "devDependencies": {
+        "@turbo/gen": "2.6.0",
+        "@vitest/coverage-v8": "4.0.6",
+        "lint-staged": "15.2.10",
+        "oxlint": "1.25.0",
+        "prettier": "3.6.2",
+        "simple-git-hooks": "2.11.1",
+        "tsdown": "0.15.12",
+        "tsx": "4.20.6",
+        "turbo": "2.6.0",
+        "typescript": "5.9.3",
+        "vitest": "4.0.6"
+    },
+    "simple-git-hooks": {
+        "pre-commit": "pnpm lint-staged"
+    },
+    "lint-staged": {
+        "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}": [
+            "prettier --write"
+        ],
+        "**/*.{ts,tsx}": [
+            "oxlint --fix"
+        ]
+    }
+}
