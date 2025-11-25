@@ -4,23 +4,31 @@
     "private": true,
     "license": "MIT",
     "type": "module",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
     "exports": {
+        "./shadcn": {
+            "types": "./dist/shadcn/index.d.ts",
+            "import": "./dist/shadcn/index.js",
+            "default": "./dist/shadcn/index.js"
+        },
         "./shadcn/*": {
             "types": "./dist/shadcn/ui/*.d.ts",
             "import": "./dist/shadcn/ui/*.js",
             "default": "./dist/shadcn/ui/*.js"
         },
-        "./retroui/*": {
-            "types": "./dist/components/retroui/*.d.ts",
-            "import": "./dist/components/retroui/*.js",
-            "default": "./dist/components/retroui/*.js"
+        "./retroui": {
+            "types": "./dist/retroui/index.d.ts",
+            "import": "./dist/retroui/index.js",
+            "default": "./dist/retroui/index.js"
         },
         "./lib/*": {
             "types": "./dist/lib/*.d.ts",
             "import": "./dist/lib/*.js",
             "default": "./dist/lib/*.js"
+        },
+        "./retroui/*": {
+            "types": "./dist/components/retroui/*.d.ts",
+            "import": "./dist/components/retroui/*.js",
+            "default": "./dist/components/retroui/*.js"
         }
     },
     "scripts": {

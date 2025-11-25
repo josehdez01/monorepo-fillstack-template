@@ -4,7 +4,7 @@ Shared UI kit for template apps. Components are exported in two styles:
 
 - `@template/ui/retroui/*` — opinionated ready-to-ship components.
 - `@template/ui/shadcn/*` — lighter primitives aligned with shadcn/ui naming.
-- `@template/ui` — convenience re-exports of common buttons.
+- There is intentionally no default `@template/ui` root export; apps must choose which family to use via the import path.
 
 ## Styling
 
@@ -15,10 +15,15 @@ Shared UI kit for template apps. Components are exported in two styles:
 ## Usage
 
 ```ts
-import { Button } from '@template/ui';
-// or
+// Retro-style components
 import { Button as RetroButton } from '@template/ui/retroui/Button';
+// or via the retroui index:
+import { Button as RetroButtonFromIndex } from '@template/ui/retroui';
+
+// shadcn-style primitives
 import { Button as ShadcnButton } from '@template/ui/shadcn/button';
+// or via the shadcn index:
+import { Button as ShadcnButtonFromIndex } from '@template/ui/shadcn';
 ```
 
 - `tailwindcss` (tested with v4+)
@@ -33,4 +38,4 @@ npx shadcn@latest add button
 ```
 
 The component will be placed in `src/retroui` (aliased as `@/retroui`).
-You can then export it from `src/index.ts` or `src/retroui/index.ts` to make it available to consumers.
+You can then export it from `src/retroui/index.ts` to make it available to consumers.

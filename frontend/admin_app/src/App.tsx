@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import HelloMessage from '@/components/hello-message';
-import { Button } from '@template/ui/shadcn/button';
+import { Button } from '@template/ui/shadcn';
 
 export default function App() {
     return (
