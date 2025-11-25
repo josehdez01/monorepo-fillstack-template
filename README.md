@@ -68,15 +68,20 @@ flowchart LR
 
     ```bash
     # Materialize .env files from examples
-    pnpm -C backend env:setup
+    pnpm env:setup
+
+    # Optionally verify env wiring across projects
+    pnpm env:doctor
     ```
 
 3.  **Start Infrastructure**
 
     ```bash
     # Starts Postgres & Redis
-    docker compose -f infra/docker-compose.yml up -d
+    pnpm infra:up
     ```
+
+    - Stop services: `pnpm infra:down`
 
 4.  **Initialize Database**
 
@@ -236,7 +241,7 @@ pnpm mint -- --scope @acme --dry
 - After schema changes, force rebuild the template and run tests:
     - `pnpm -C backend test:local:rebuild`
 - Optional: customize test env
-    - Copy `backend/.env.test.example` to `backend/.env.test.local` and adjust `TEST_DATABASE_URL` if needed.
+    - Copy `backend/.env.test.example` to `backend/.env.test.local` and adjust `TEST_DATABASE_URL` if you want tests to use a different Postgres DB than the default `app`.
     - You can also manage services manually with `pnpm -C backend test:db:up` and `pnpm -C backend test:db:down`.
     - More details: `backend/docs/testing.md`.
 

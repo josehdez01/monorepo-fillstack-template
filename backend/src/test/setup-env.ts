@@ -1,56 +1,34 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadEnvFiles } from '@template/env';
+import { backendEnvDefaults, backendTestEnvDefaults } from '../../../infra/env/defaults.ts';
 
-function loadEnvFile(path: string) {
-    try {
-        const abs = resolve(path);
-        const content = readFileSync(abs, 'utf8');
-        for (const line of content.split(/\r?\n/)) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) {
-                continue;
-            }
-            const eq = trimmed.indexOf('=');
-            if (eq === -1) {
-                continue;
-            }
-            const key = trimmed.slice(0, eq).trim();
-            let val = trimmed.slice(eq + 1).trim();
-            if (
-                (val.startsWith('"') && val.endsWith('"')) ||
-                (val.startsWith("'") && val.endsWith("'"))
-            ) {
-                val = val.slice(1, -1);
-            }
-            if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
-                process.env[key] = val;
-            }
-        }
-    } catch {
-        // ignore
-    }
-}
+const backendDir = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
 
-if (existsSync('.env.test.local')) {
-    loadEnvFile('.env.test.local');
-} else if (existsSync('.env.test')) {
-    loadEnvFile('.env.test');
-} else if (existsSync('.env')) {
-    loadEnvFile('.env');
-}
+// Load test-specific env files first; fall back to dev/local envs.
+loadEnvFiles(['.env.test.local', '.env.test', '.env.local', '.env'], { cwd: backendDir });
+
+const testDefaults = backendTestEnvDefaults;
+const fallbackDefaults = backendEnvDefaults;
 
 if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = 'test';
 }
 
+const portDefault = testDefaults.PORT ?? fallbackDefaults.PORT;
+if (!process.env.PORT && portDefault !== undefined) {
+    process.env.PORT = String(portDefault);
+}
+
 if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/monorepo_test';
+    process.env.DATABASE_URL =
+        process.env.TEST_DATABASE_URL ?? testDefaults.DATABASE_URL ?? fallbackDefaults.DATABASE_URL;
 }
 
 if (!process.env.REDIS_URL) {
-    process.env.REDIS_URL = 'redis://localhost:6379';
+    process.env.REDIS_URL = testDefaults.REDIS_URL ?? fallbackDefaults.REDIS_URL;
 }
 
 if (!process.env.ROLE) {
-    process.env.ROLE = 'all';
+    process.env.ROLE = testDefaults.ROLE ?? fallbackDefaults.ROLE ?? 'all';
 }

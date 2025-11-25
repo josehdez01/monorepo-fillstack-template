@@ -15,5 +15,5 @@
             "@template/contracts/utils/*": ["../contracts/src/utils/*"]
         }
     },
-    "include": ["src", "mikro-orm.config.ts", "../contracts/src/**/*.ts"]
+    "include": ["src", "mikro-orm.config.ts", "../contracts/src/**/*.ts", "../infra/env/**/*.ts"]
 }

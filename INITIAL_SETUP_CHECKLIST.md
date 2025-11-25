@@ -192,7 +192,7 @@ includes a short rationale. Run from the repo root unless noted.
         volumes:
           pgdata:
         YML
-        docker compose -f infra/docker-compose.yml up -d
+        pnpm infra:up
         ```
 
 ## 5) Contracts Package
@@ -401,9 +401,11 @@ includes a short rationale. Run from the repo root unless noted.
 - [ ] Bring up services and install deps
     - Commands:
         ```sh
-        docker compose -f infra/docker-compose.yml up -d
+        pnpm infra:up
         pnpm install
         ```
+
+        - Stop services when finished: `pnpm infra:down`
 
 - [ ] Run dev servers (example)
     - Commands:
