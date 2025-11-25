@@ -11,4 +11,7 @@ export const greet = oc
         RATE_LIMITED: {
             data: z.object({ retryAfter: z.number().int().min(MIN_RETRY_AFTER) }),
         },
+        UNAUTHORIZED: {
+            data: z.undefined(),
+        },
     });

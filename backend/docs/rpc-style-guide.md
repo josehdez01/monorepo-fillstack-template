@@ -14,14 +14,16 @@ Layout
 - contracts/src/orpc/<ns>/<proc>.ts — `oc` builder for a procedure
 - contracts/src/orpc/<ns>/index.ts — namespace aggregator (PLOP injects here)
 - contracts/src/orpc/contract.ts — root aggregator (PLOP injects here)
-- backend/src/rpc/<ns>.ts — handlers per namespace
-- backend/src/rpc.ts — composes all namespaces
+- backend/src/rpc/routers/<ns>.ts — handlers per namespace
+- backend/src/rpc/routers/index.ts — composes all namespaces
+- backend/src/rpc/middleware/** — auth + AppError → ORPCError mapping
+- backend/src/rpc/contexts/** — base/session contexts
 - backend/src/modules/<feature>/service.ts — feature services (pure functions)
-- backend/src/db/\*\* — centralized data layer (entities, repositories, ORM)
+- backend/src/db/** — centralized data layer (entities, repositories, ORM)
 
 Generator
 
-- Add new procedures manually by creating a contract under `contracts/src/orpc/<ns>/<proc>.ts`, wiring it in the `<ns>/index.ts` and `contract.ts`, and implementing a handler under `backend/src/rpc/<ns>.ts`.
+- Add new procedures manually by creating a contract under `contracts/src/orpc/<ns>/<proc>.ts`, wiring it in the `<ns>/index.ts` and `contract.ts`, and implementing a handler under `backend/src/rpc/routers/<ns>.ts`.
 
 Conventions
 
@@ -39,5 +41,5 @@ Entities and IDs
 Example: Users
 
 - Contract: `contracts/src/orpc/users/{create,get-by-id}.ts`
-- Handler: `backend/src/rpc/users.ts`
+- Handler: `backend/src/rpc/routers/users.ts`
 - Service: `backend/src/modules/users/service.ts`

@@ -9,4 +9,7 @@ export const create = oc
             // ValidationError data may include an optional field name
             data: z.object({ field: z.string().optional() }).optional(),
         },
+        UNAUTHORIZED: {
+            data: z.undefined(),
+        },
     });

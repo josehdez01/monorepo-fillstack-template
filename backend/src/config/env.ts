@@ -9,6 +9,10 @@ const EnvSchema = z.object({
         .default(3000),
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url(),
+    QUEUE_RUN_WORKERS: z
+        .union([z.boolean(), z.string()])
+        .transform((v) => (typeof v === 'string' ? v === 'true' || v === '1' : v))
+        .default(true),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

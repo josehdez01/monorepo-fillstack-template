@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 const PublicEnvSchema = z.object({
-    VITE_API_BASE_URL: z.string().url().optional(),
+    VITE_RPC_URL: z.string().url().default('http://localhost:3000'),
+    VITE_ORPC_VALIDATE_REQUESTS: z.coerce.boolean().default(false),
 });
 
 export type PublicEnv = z.infer<typeof PublicEnvSchema>;

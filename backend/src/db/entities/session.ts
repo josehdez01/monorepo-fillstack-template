@@ -6,8 +6,6 @@ export const SessionModel = defineModel('Session', (p) => ({
     type: p.enum(['user', 'system']),
     ipAddress: p.string().nullable(),
     userAgent: p.string().nullable(),
-    createdAt: p.datetime(),
-    updatedAt: p.datetime(),
 }));
 
 // Top-level schema export for registry and discovery

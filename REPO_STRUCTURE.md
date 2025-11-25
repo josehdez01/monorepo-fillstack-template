@@ -62,7 +62,6 @@ single source of truth for where code lives and how it is wired together.
 ├─ packages/                    # Shared internal libraries
 │  ├─ tsconfig/                 # Shared tsconfig presets
 │  ├─ logger/                   # pino‑based logger
-│  ├─ utils/                    # pure TS utilities
 │  └─ ui/                       # shared UI components
 │
 ├─ infra/
@@ -87,7 +86,7 @@ single source of truth for where code lives and how it is wired together.
   build.
 - frontend: Each app is isolated with its own `.env` and Vite config. Shared
   UI lives in `packages/ui` when it proves reusable.
-- packages: Contain reusable code (logger, utils). Keeping these granular
+- packages: Contain reusable code (logger, ui). Keeping these granular
   prevents duplication across apps.
 - infra: Local dev dependencies (Postgres, Redis) run via one docker compose
   file; keeps system installs minimal.

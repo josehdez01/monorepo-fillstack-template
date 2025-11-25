@@ -127,7 +127,8 @@ describe.skipIf(!haveDb)('session RPC (with test DB)', () => {
     it('allows access to protected route with valid session', async () => {
         assert(baseCtx);
         const result = await client.hello.greet({ name: 'World' }, { context: baseCtx });
-        expect(result).toBe('Hello, World !');
+        expect(result).toContain('Hello, World!');
+        expect(result).toContain(baseCtx.session.sessionId);
     });
 
     it('denies access to protected route without session', async () => {

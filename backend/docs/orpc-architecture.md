@@ -25,6 +25,7 @@ Request Context
 
 - `RpcContext` provides `requestId`, `logger`, a per-request `EntityManager`, and `headers`.
 - Middleware attaches the context in `backend/src/index.ts` when mounting the RPC handler.
+- Middleware can refine/enrich context: applying `makeAuthMiddleware()` adds `session` to `context` for downstream handlers. ORPC redefines the context shape automatically when a middleware is applied, so downstream handlers see the augmented type without additional casting.
 
 Error Policy
 
@@ -42,3 +43,4 @@ Notes
 - Keep handlers thin; prefer pushing logic into services for reuse and testing.
 - Prefer repository signatures that accept `Entity['id']` branded types; cast at the API edges as needed.
 - Avoid global singletons for data or auth; rely on the request-scoped context.
+- Per-namespace implementers keep context narrow and make middleware scoping explicit. For example, `hello` uses `makeAuthMiddleware()`; the handler can safely read `context.session.sessionId`, and the string response demonstrates the middleware-enriched context (`Hello, World! session=<id>`).

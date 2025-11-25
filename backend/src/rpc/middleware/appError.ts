@@ -1,9 +1,7 @@
-import { ORPCError, type implement } from '@orpc/server';
-import type { AppContract } from '@template/contracts/orpc/contract';
+import { ORPCError, os } from '@orpc/server';
 import { AppError } from '../../errors/app-errors.ts';
-import type { BaseContext } from '../contexts/baseContext.ts';
 
-export function makeAppErrorMiddleware(os: ReturnType<typeof implement<AppContract, BaseContext>>) {
+export function makeAppErrorMiddleware() {
     return os.middleware(async ({ next }) => {
         try {
             return await next();

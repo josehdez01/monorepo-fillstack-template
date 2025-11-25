@@ -167,7 +167,7 @@ pnpm gen queue
 pnpm gen queue --args name=email-send
 ```
 
-The file is created at `backend/src/queues/<name>-queue.ts`.
+The file is created at `backend/src/queues/<name>-queue.ts`. Import it in `backend/src/queues/index.ts` to register it at startup.
 
 #### Generate a New DB Entity + Repository
 

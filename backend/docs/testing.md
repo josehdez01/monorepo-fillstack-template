@@ -14,9 +14,13 @@ Usage in Tests
 2. In your test `beforeAll`, call `new TestDbManager().createEphemeral()` to get a unique DB URL, set `process.env.DATABASE_URL` to it, then initialize MikroORM.
 3. After tests, close ORM and `dropDatabase(name)` to clean up.
 
+CI Example
+
+- The provided GitHub Actions workflow starts Postgres/Redis services, materializes a test DB template, and runs the full suite with `DATABASE_URL=postgres://postgres:postgres@localhost:5432/app` and `REDIS_URL=redis://localhost:6379`.
+
 Schema Validation
 
 - Tests call `getEnv()` to validate environment variables using Zod.
-- Required non-secret variables get default placeholders in tests (e.g., `GITHUB_WEBHOOK_SECRET`, `SLACK_SIGNING_SECRET`).
+- Required non-secret variables get default placeholders in tests. For this template, `backend/.env.test.example` mirrors `.env.example` with worker queues disabled.
 
 Example: see `backend/src/rpc/users.test.ts` for an end-to-end test using `RPCHandler` and the DB template manager.

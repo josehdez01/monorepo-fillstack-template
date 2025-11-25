@@ -8,7 +8,7 @@ export function setQueueRunWithContext(fn: <T>(fn: () => Promise<T>) => Promise<
 
 export const queueService = new QueueService({
     prefix: 'queues',
-    runWorkers: true,
+    runWorkers: false,
     exclusiveWorkers: true,
     runWithContext: async <T>(fn: () => Promise<T>) => {
         const r = runWithContextRef;

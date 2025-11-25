@@ -12,8 +12,4 @@ export const createSession = oc
             sessionId: z.string(),
         }),
     )
-    .errors({
-        DUMMY_ERROR: {
-            data: z.object({ message: z.string() }),
-        },
-    });
+    .errors({});

@@ -5,10 +5,13 @@
         "outDir": "dist",
         "types": ["node"],
         "baseUrl": ".",
+        "rootDir": "..",
         "paths": {
+            "@template/contracts/*": ["../contracts/src/*"],
             "@template/contracts/shared/*": ["../contracts/src/shared/*"],
-            "@template/contracts/orpc/*": ["../contracts/src/orpc/*"]
+            "@template/contracts/orpc/*": ["../contracts/src/orpc/*"],
+            "@template/contracts/orpc/contract": ["../contracts/src/orpc/contract.ts"]
         }
     },
-    "include": ["src", "mikro-orm.config.ts"]
+    "include": ["src", "mikro-orm.config.ts", "../contracts/src/**/*.ts"]
 }

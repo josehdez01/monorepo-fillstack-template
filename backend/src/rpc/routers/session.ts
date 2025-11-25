@@ -1,6 +1,6 @@
-import { createSessionService } from '../../modules/sessions/service.ts';
 import { implement } from '@orpc/server';
 import { appContract } from '@template/contracts/orpc/contract';
+import { createSessionService } from '../../modules/sessions/service.ts';
 import type { BaseContext } from '../contexts/baseContext.ts';
 
 export function buildSession() {

@@ -6,4 +6,5 @@ export const getById = oc
     .output(z.object({ email: z.string().email(), id: z.number().int().positive() }))
     .errors({
         NOT_FOUND: { data: z.undefined() },
+        UNAUTHORIZED: { data: z.undefined() },
     });

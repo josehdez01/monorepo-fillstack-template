@@ -11,7 +11,7 @@
 ```ts
 // backend/src/queues/sum-queue.ts
 import { z } from 'zod';
-import { queueService } from '../queues/service.ts';
+import { queueService } from './service.ts';
 
 export const sumQueue = queueService.defineQueue({
     name: 'sum',
@@ -38,14 +38,17 @@ Producer‑only:
 ```ts
 import { queueService } from '../queues/service.ts';
 import { makeRedis } from '../infra/redis.ts';
+import { registerQueues } from '../queues/index.ts';
 
+registerQueues();
 await queueService.initQueues({ connection: makeRedis() });
 ```
 
 Worker process:
 
 ```ts
-await queueService.initQueues({ connection: makeRedis() });
+registerQueues();
+await queueService.initQueues({ connection: makeRedis(), runWorkers: true });
 // Periodically reconcile orphaned workers (lock handoff)
 setInterval(() => queueService.reconcileWorkers(), 15_000);
 ```
@@ -84,11 +87,12 @@ queueService.allowLateRegistration();
 await queueService.initQueues({ connection, runWorkers: false, allowLateRegistration: true });
 ```
 
-## Exclusive Workers
+## Exclusive Workers and Roles
 
 - Enabled by default when `runWorkers: true`.
 - Uses a Redis key lock per queue with a heartbeat.
 - Disable with `exclusiveWorkers: false`.
+- Toggle worker mode via env: `QUEUE_RUN_WORKERS=true|false` (defaults to true in dev, false in tests). The API and workers can run in one process or separate ones.
 
 ## Typing Tips
 

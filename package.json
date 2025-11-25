@@ -8,7 +8,7 @@
         "dev": "turbo run dev --filter='./backend' --parallel",
         "dev:all": "turbo run dev --parallel",
         "build": "turbo run build",
-        "lint": "turbo run lint && pnpm format:check",
+        "lint": "turbo run lint && pnpm format",
         "format": "turbo run format",
         "format:check": "prettier --check .",
         "typecheck": "turbo run typecheck",

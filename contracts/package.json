@@ -15,9 +15,9 @@
     "type": "module",
     "exports": {
         "./orpc/*": {
-            "types": "./dist/*.d.ts",
-            "import": "./dist/*.js",
-            "default": "./dist/*.js"
+            "types": "./dist/orpc/*.d.ts",
+            "import": "./dist/orpc/*.js",
+            "default": "./dist/orpc/*.js"
         }
     },
     "typesVersions": {
