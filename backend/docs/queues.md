@@ -48,7 +48,7 @@ Worker process:
 
 ```ts
 registerQueues();
-await queueService.initQueues({ connection: makeRedis(), runWorkers: true });
+await queueService.initQueues({ connection: makeRedis() });
 // Periodically reconcile orphaned workers (lock handoff)
 setInterval(() => queueService.reconcileWorkers(), 15_000);
 ```
@@ -92,7 +92,10 @@ await queueService.initQueues({ connection, runWorkers: false, allowLateRegistra
 - Enabled by default when `runWorkers: true`.
 - Uses a Redis key lock per queue with a heartbeat.
 - Disable with `exclusiveWorkers: false`.
-- Toggle worker mode via env: `QUEUE_RUN_WORKERS=true|false` (defaults to true in dev, false in tests). The API and workers can run in one process or separate ones.
+- Toggle worker mode via env `ROLE`:
+    - `ROLE=api` — API only (no workers; queues still initialize for producers).
+    - `ROLE=worker` — workers only (no HTTP server).
+    - `ROLE=all` — both in one process (default). Queues register before workers start, then the API starts.
 
 ## Typing Tips
 

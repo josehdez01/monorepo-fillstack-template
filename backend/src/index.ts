@@ -14,22 +14,14 @@ const env = getEnv();
 const logger = createLogger();
 const rpc = createRpcHandler();
 
-async function bootstrap() {
-    const orm = await initORM();
-    
-    // Register queues in one place for clarity
-    registerQueues();
-    // Initialize queues after app/ORM setup
-    await queueService.initQueues({
-        connection: makeRedis(),
-    });
-    // Periodic worker reconcile to recover from orphaned locks
-    const reconcileHandle = setInterval(() => {
-        void queueService
-            .reconcileWorkers()
-            .catch((err) => logger.warn({ err }, 'reconcileWorkers error'));
-    }, 15_000);
+type Role = 'api' | 'worker' | 'all';
+const role: Role = env.ROLE;
+const shouldRunWorkers = role !== 'api';
+const shouldRunApi = role !== 'worker';
 
+let reconcileHandle: NodeJS.Timeout | undefined;
+
+async function startApi(orm: Awaited<ReturnType<typeof initORM>>) {
     // Attach ORM middleware to Hono
     app.use('*', makeOrmMiddleware(orm));
     // Mount ORPC into Hono using fetch adapter
@@ -67,15 +59,9 @@ async function bootstrap() {
 
         await next();
     });
-    // Configure torero-mq to run jobs inside MikroORM RequestContext
-    setQueueRunWithContext(async <T>(fn: () => Promise<T>) => {
-        const em = orm.em.fork({ useContext: true });
-        return await RequestContext.create(em, fn);
-    });
 
-    // Start HTTP server using Hono's Node adapter
     logger.info(`Backend HTTP+RPC starting on 0.0.0.0:${env.PORT}`);
-    const server = await serve({
+    const server = serve({
         fetch: app.fetch,
         port: env.PORT,
         hostname: '0.0.0.0',
@@ -83,13 +69,46 @@ async function bootstrap() {
 
     const shutdown = async () => {
         logger.info('Shutting down gracefully');
-        clearInterval(reconcileHandle);
+        if (reconcileHandle) {
+            clearInterval(reconcileHandle);
+        }
         server.close();
         await orm.close(true);
     };
 
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
+}
+
+async function bootstrap() {
+    const orm = await initORM();
+
+    // Configure torero-mq to run jobs inside MikroORM RequestContext
+    setQueueRunWithContext(async <T>(fn: () => Promise<T>) => {
+        const em = orm.em.fork({ useContext: true });
+        return await RequestContext.create(em, fn);
+    });
+
+    // Register queues in one place for clarity
+    registerQueues();
+
+    // Queues are always initialized, but workers are only started if getEnv().ROLE !== 'api'
+    // See queueService file and docs/queues.md for more details
+    const redis = makeRedis();
+    await queueService.initQueues({ connection: redis });
+
+    // Periodically reconcile orphaned workers (lock handoff)
+    if (shouldRunWorkers) {
+        reconcileHandle = setInterval(() => {
+            void queueService
+                .reconcileWorkers()
+                .catch((err) => logger.warn({ err }, 'reconcileWorkers error'));
+        }, 15_000);
+    }
+
+    if (shouldRunApi) {
+        await startApi(orm);
+    }
 }
 
 await bootstrap();

@@ -21,7 +21,8 @@
         "db:migrate:up": "tsx src/scripts/migrations-up.ts",
         "db:migrate:down": "tsx src/scripts/migrations-down.ts",
         "lint": "oxlint .",
-        "worker:sum": "echo 'Deprecated: workers run in-process via queueService.initQueues'"
+        "worker:sum": "echo 'Deprecated: workers run in-process via queueService.initQueues'",
+        "start:worker": "ROLE=worker pnpm start"
     },
     "keywords": [],
     "author": "",

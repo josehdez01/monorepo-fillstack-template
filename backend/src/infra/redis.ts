@@ -1,7 +1,13 @@
 import { Redis as IORedisClient } from 'ioredis';
 import { getEnv } from '../config/env.ts';
 
+let redisInstance: IORedisClient | undefined;
+
 export function makeRedis(): IORedisClient {
+    if (redisInstance) {
+        return redisInstance;
+    }
     const env = getEnv();
-    return new IORedisClient(env.REDIS_URL);
+    redisInstance = new IORedisClient(env.REDIS_URL);
+    return redisInstance;
 }
