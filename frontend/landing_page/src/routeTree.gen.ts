@@ -8,105 +8,110 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as Dashboard_rootRouteImport } from './routes/dashboard/__root';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings';
-import { Route as DashboardHomeRouteImport } from './routes/dashboard/home';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as Dashboard_rootRouteImport } from './routes/dashboard/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardHomeRouteImport } from './routes/dashboard/home'
 
 const Dashboard_rootRoute = Dashboard_rootRouteImport.update({
-    id: '/dashboard/__root',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/dashboard/__root',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-    id: '/dashboard/settings',
-    path: '/dashboard/settings',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/dashboard/settings',
+  path: '/dashboard/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardHomeRoute = DashboardHomeRouteImport.update({
-    id: '/dashboard/home',
-    path: '/dashboard/home',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/dashboard/home',
+  path: '/dashboard/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-    '/': typeof IndexRoute;
-    '/dashboard': typeof Dashboard_rootRoute;
-    '/dashboard/home': typeof DashboardHomeRoute;
-    '/dashboard/settings': typeof DashboardSettingsRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof Dashboard_rootRoute
+  '/dashboard/home': typeof DashboardHomeRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
 }
 export interface FileRoutesByTo {
-    '/': typeof IndexRoute;
-    '/dashboard': typeof Dashboard_rootRoute;
-    '/dashboard/home': typeof DashboardHomeRoute;
-    '/dashboard/settings': typeof DashboardSettingsRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof Dashboard_rootRoute
+  '/dashboard/home': typeof DashboardHomeRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
 }
 export interface FileRoutesById {
-    __root__: typeof rootRouteImport;
-    '/': typeof IndexRoute;
-    '/dashboard/__root': typeof Dashboard_rootRoute;
-    '/dashboard/home': typeof DashboardHomeRoute;
-    '/dashboard/settings': typeof DashboardSettingsRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/dashboard/__root': typeof Dashboard_rootRoute
+  '/dashboard/home': typeof DashboardHomeRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
 }
 export interface FileRouteTypes {
-    fileRoutesByFullPath: FileRoutesByFullPath;
-    fullPaths: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/settings';
-    fileRoutesByTo: FileRoutesByTo;
-    to: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/settings';
-    id: '__root__' | '/' | '/dashboard/__root' | '/dashboard/home' | '/dashboard/settings';
-    fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/settings'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/dashboard' | '/dashboard/home' | '/dashboard/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard/__root'
+    | '/dashboard/home'
+    | '/dashboard/settings'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-    IndexRoute: typeof IndexRoute;
-    Dashboard_rootRoute: typeof Dashboard_rootRoute;
-    DashboardHomeRoute: typeof DashboardHomeRoute;
-    DashboardSettingsRoute: typeof DashboardSettingsRoute;
+  IndexRoute: typeof IndexRoute
+  Dashboard_rootRoute: typeof Dashboard_rootRoute
+  DashboardHomeRoute: typeof DashboardHomeRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
-    interface FileRoutesByPath {
-        '/dashboard/__root': {
-            id: '/dashboard/__root';
-            path: '/dashboard';
-            fullPath: '/dashboard';
-            preLoaderRoute: typeof Dashboard_rootRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/': {
-            id: '/';
-            path: '/';
-            fullPath: '/';
-            preLoaderRoute: typeof IndexRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/dashboard/settings': {
-            id: '/dashboard/settings';
-            path: '/dashboard/settings';
-            fullPath: '/dashboard/settings';
-            preLoaderRoute: typeof DashboardSettingsRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/dashboard/home': {
-            id: '/dashboard/home';
-            path: '/dashboard/home';
-            fullPath: '/dashboard/home';
-            preLoaderRoute: typeof DashboardHomeRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
+  interface FileRoutesByPath {
+    '/dashboard/__root': {
+      id: '/dashboard/__root'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof Dashboard_rootRouteImport
+      parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/home': {
+      id: '/dashboard/home'
+      path: '/dashboard/home'
+      fullPath: '/dashboard/home'
+      preLoaderRoute: typeof DashboardHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-    IndexRoute: IndexRoute,
-    Dashboard_rootRoute: Dashboard_rootRoute,
-    DashboardHomeRoute: DashboardHomeRoute,
-    DashboardSettingsRoute: DashboardSettingsRoute,
-};
+  IndexRoute: IndexRoute,
+  Dashboard_rootRoute: Dashboard_rootRoute,
+  DashboardHomeRoute: DashboardHomeRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+}
 export const routeTree = rootRouteImport
-    ._addFileChildren(rootRouteChildren)
-    ._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
