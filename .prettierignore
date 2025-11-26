@@ -5,3 +5,4 @@ coverage
 migrations
 .turbo
 turbo/generators/templates/**
+**/routeTree.gen.ts

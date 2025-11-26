@@ -3,6 +3,7 @@ node_modules
 .turbo
 orpc_docs
 mikro_orm_docs
+tanstack_router_docs
 
 # Logs
 logs
