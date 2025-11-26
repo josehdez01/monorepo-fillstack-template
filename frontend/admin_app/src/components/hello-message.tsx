@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from '@tanstack/react-router';
+import { orpc } from '@/api/orpc-client';
 
 export default function HelloMessage() {
-    const router = useRouter();
-    const orpc = router.options.context.orpc;
     const { data } = useQuery(orpc.hello.greet.queryOptions({ input: { name: 'world' } }));
 
     return <p data-testid="orpc-hello">{String(data ?? '')}</p>;

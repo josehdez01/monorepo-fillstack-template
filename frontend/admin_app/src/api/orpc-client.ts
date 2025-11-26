@@ -3,6 +3,8 @@ import { RPCLink } from '@orpc/client/fetch';
 import type { ContractRouterClient } from '@orpc/contract';
 import { RequestValidationPlugin } from '@orpc/contract/plugins';
 import { appContract, type AppContract } from '@template/contracts/orpc/contract';
+import { createTanstackQueryUtils } from '@orpc/tanstack-query';
+import { getPublicEnv } from '@/env';
 
 export type AppClient = ContractRouterClient<AppContract>;
 
@@ -16,3 +18,12 @@ export function makeClient({ baseUrl, validateRequests = true }: MakeClientOptio
     const plugins = validateRequests ? [new RequestValidationPlugin(appContract)] : [];
     return createORPCClient(new RPCLink({ url, plugins }));
 }
+
+const env = getPublicEnv();
+
+const client = makeClient({
+    baseUrl: env.VITE_RPC_URL,
+    validateRequests: env.VITE_ORPC_VALIDATE_REQUESTS,
+});
+
+export const orpc = createTanstackQueryUtils(client);

@@ -106,9 +106,12 @@ Backend runtime roles
 - `ROLE=worker`: runs only queue workers (no HTTP server).
 - `ROLE=all` (default): runs both in one process, registering queues before starting workers, then starting the API.
 
-Frontend env defaults
+Frontend env & ORPC structure
 
-- Frontend `.env.example` files include `VITE_RPC_URL` and enable client-side request validation by default via `VITE_ORPC_VALIDATE_REQUESTS=true`. Set it to `false` to disable local request validation if needed.
+- Frontend `.env.example` files include `VITE_RPC_URL` and `VITE_ORPC_VALIDATE_REQUESTS`. Each app defines a small `src/env.ts` that parses these via `parseViteEnv` from `@template/env`, so all `import.meta.env` access is zod-validated.
+- Each frontend exposes a single ORPC client + TanStack Query helper from `src/api/orpc-client.ts`:
+    - `makeClient` constructs a typed ORPC client using the shared contracts.
+    - A singleton `orpc` is created in that module using `getPublicEnv()` and can be imported anywhere in the app (`import { orpc } from '@/api/orpc-client'`), avoiding prop drilling or router-context coupling for data fetching.
 
 ## Project Structure
 
