@@ -91,6 +91,18 @@ flowchart LR
     pnpm -C backend db:migrate:up
     ```
 
+### Replace Sample Schema & Create Your Initial Migration
+
+- Delete or rewrite the sample entities in `backend/src/db/entities` (e.g., `user.ts`, `session.ts`) to match your domain, then update the registry file if needed.
+- Remove the example migration artifacts from `backend/migrations/` (the `Migration*.ts` file and `.snapshot-app.json`) so you start clean.
+- With Postgres running (`pnpm infra:up`), generate your migration for the new schema:
+
+    ```bash
+    pnpm -C backend db:entities:gen
+    pnpm -C backend db:migrate:create
+    pnpm -C backend db:migrate:up
+    ```
+
 5.  **Run Development Servers**
 
     ```bash
