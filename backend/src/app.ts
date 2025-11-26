@@ -1,10 +1,13 @@
 import { Hono } from 'hono';
 import type { EntityManager } from '@mikro-orm/core';
+import { cors } from 'hono/cors';
 import { createLogger, type Logger } from '@template/logger';
 
 export const app = new Hono<{
     Variables: { em: EntityManager; logger: Logger; requestId: string };
 }>();
+
+app.use('*', cors());
 
 app.get('/health', (c) => c.json({ ok: true }));
 

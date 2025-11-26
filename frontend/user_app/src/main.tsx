@@ -5,19 +5,10 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen.ts';
 import './styles.css';
 import reportWebVitals from './reportWebVitals.ts';
-import { makeClient } from '@/api/orpc-client';
-import { createTanstackQueryUtils } from '@orpc/tanstack-query';
-import { getPublicEnv } from './env.ts';
 
 const rootElement = document.getElementById('app');
 if (rootElement && !rootElement.innerHTML) {
-    const env = getPublicEnv();
-    const client = makeClient({
-        baseUrl: env.VITE_RPC_URL,
-        validateRequests: env.VITE_ORPC_VALIDATE_REQUESTS,
-    });
-    const orpc = createTanstackQueryUtils(client);
-    const router = createRouter({ routeTree, context: { client, orpc, authed: true } });
+    const router = createRouter({ routeTree, context: { authed: true } });
     const queryClient = new QueryClient();
     const root = ReactDOM.createRoot(rootElement);
     root.render(

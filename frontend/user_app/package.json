@@ -4,7 +4,7 @@
     "type": "module",
     "license": "MIT",
     "scripts": {
-        "dev": "vite --port 5175",
+        "dev": "vite",
         "build": "vite build && tsc",
         "test": "vitest run",
         "lint": "oxlint --fix .",
