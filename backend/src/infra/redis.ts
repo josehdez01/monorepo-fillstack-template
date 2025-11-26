@@ -8,6 +8,8 @@ export function makeRedis(): IORedisClient {
         return redisInstance;
     }
     const env = getEnv();
-    redisInstance = new IORedisClient(env.REDIS_URL);
+    redisInstance = new IORedisClient(env.REDIS_URL, {
+        maxRetriesPerRequest: null,
+    });
     return redisInstance;
 }
