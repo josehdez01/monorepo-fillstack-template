@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+
 @theme {
     --font-head: 'Archivo Black', sans-serif;
     --font-sans: 'Space Grotesk', sans-serif;
