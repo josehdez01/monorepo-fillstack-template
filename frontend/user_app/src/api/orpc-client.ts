@@ -1,4 +1,4 @@
-import { createORPCClient, type SafeClient } from '@orpc/client';
+import { createORPCClient } from '@orpc/client';
 import { RPCLink } from '@orpc/client/fetch';
 import type { ContractRouterClient } from '@orpc/contract';
 import { RequestValidationPlugin } from '@orpc/contract/plugins';
@@ -7,7 +7,6 @@ import { createTanstackQueryUtils } from '@orpc/tanstack-query';
 import { getPublicEnv } from '@/env';
 
 export type AppClient = ContractRouterClient<AppContract>;
-export type SafeAppClient = SafeClient<AppClient>;
 
 export interface MakeClientOptions {
     baseUrl: string;
@@ -22,19 +21,21 @@ export function makeClient({ baseUrl, validateRequests = true }: MakeClientOptio
             url,
             plugins,
             headers: () => {
-                // Read session ID dynamically on each request
-                const sessionId =
-                    typeof window !== 'undefined' ? localStorage.getItem('sessionId') : null;
-                const sessionHeader = sessionId ? { 'x-session-id': sessionId } : {};
+                if (typeof window === 'undefined') {
+                    return {};
+                }
+                const sessionId = window.localStorage.getItem('sessionId');
+                if (!sessionId) {
+                    return {};
+                }
                 return {
-                    ...sessionHeader,
+                    'x-session-id': sessionId,
                 };
             },
         }),
     );
 }
 
-// Create singleton client and orpc instance with dynamic headers
 const env = getPublicEnv();
 
 const client = makeClient({

@@ -1,17 +1,11 @@
-import { createORPCClient, createSafeClient, type SafeClient } from '@orpc/client';
+import { createORPCClient } from '@orpc/client';
 import { RPCLink } from '@orpc/client/fetch';
 import type { ContractRouterClient } from '@orpc/contract';
 import type { AppContract } from '@template/contracts/orpc/contract';
 
 export type AppClient = ContractRouterClient<AppContract>;
-    export type SafeAppClient = SafeClient<AppClient>;
 
-        export function makeClient(base: string): AppClient {
-        const url = `${base.replace(/\/$/, '')}/rpc`;
-        return createORPCClient(new RPCLink({ url }));
-        }
-
-        export function makeSafeClient(base: string): SafeAppClient {
-        const client = makeClient(base);
-        return createSafeClient(client);
-        }
+export function makeClient(base: string): AppClient {
+    const url = `${base.replace(/\/$/, '')}/rpc`;
+    return createORPCClient(new RPCLink({ url }));
+}

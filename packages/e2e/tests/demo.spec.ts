@@ -1,16 +1,22 @@
 import { test, expect } from '@playwright/test';
 
+const debugLogging = false;
+
 test('user app loads session and shows hello message', async ({ page }) => {
-    page.on('console', (msg) => console.log(`[Browser Console]: ${msg.text()}`));
-    page.on('pageerror', (err) => console.log(`[Browser Error]: ${err}`));
-    page.on('requestfailed', (req) =>
-        console.log(`[Request Failed]: ${req.url()} ${req.failure()?.errorText}`),
-    );
-    page.on('response', (res) => {
-        if (res.status() >= 400) {
-            console.log(`[Response Error]: ${res.url()} ${res.status()}`);
-        }
-    });
+    if (debugLogging) {
+        page.on('console', (msg) => console.log(`[Browser Console]: ${msg.text()}`));
+        page.on('pageerror', (err) => console.log(`[Browser Error]: ${err}`));
+        page.on('requestfailed', (req) => {
+            const failure = req.failure();
+            const errorText = failure ? failure.errorText : '';
+            console.log(`[Request Failed]: ${req.url()} ${errorText}`);
+        });
+        page.on('response', (res) => {
+            if (res.status() >= 400) {
+                console.log(`[Response Error]: ${res.url()} ${res.status()}`);
+            }
+        });
+    }
 
     // 1. Visit the user app
     await page.goto('/');
