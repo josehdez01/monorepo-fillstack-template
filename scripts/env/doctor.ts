@@ -108,15 +108,13 @@ async function checkFrontend(name: string, dir: string): Promise<CheckResult> {
 }
 
 async function main() {
-    const checks: Promise<CheckResult>[] = [
-        checkBackend('development'),
-        checkBackend('test'),
-        checkFrontend('frontend:landing_page', 'frontend/landing_page'),
-        checkFrontend('frontend:user_app', 'frontend/user_app'),
-        checkFrontend('frontend:admin_app', 'frontend/admin_app'),
-    ];
+    const results: CheckResult[] = [];
 
-    const results = await Promise.all(checks);
+    results.push(await checkBackend('development'));
+    results.push(await checkBackend('test'));
+    results.push(await checkFrontend('frontend:landing_page', 'frontend/landing_page'));
+    results.push(await checkFrontend('frontend:user_app', 'frontend/user_app'));
+    results.push(await checkFrontend('frontend:admin_app', 'frontend/admin_app'));
 
     for (const res of results) {
         const label = res.mode ? `${res.name} (${res.mode})` : res.name;
