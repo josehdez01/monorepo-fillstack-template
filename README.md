@@ -224,6 +224,8 @@ Note: We do not provide an RPC generator by design; follow `backend/src/rpc/READ
 
 When forking this repo, quickly re-scope all `@template/*` packages to your org scope.
 
+> Before minting: install the prerequisites (Node, pnpm) and run `pnpm install` so the `tsx` runner used by the script is available.
+
 ```bash
 pnpm mint -- --scope @acme
 ```

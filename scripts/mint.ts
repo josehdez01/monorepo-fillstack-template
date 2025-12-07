@@ -81,6 +81,8 @@ async function rewritePackageJson(file: string, scope: string, dry: boolean) {
     return false;
 }
 
+const TEXT_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.json', '.md', '.hbs', '.yaml', '.yml']);
+
 async function main() {
     const cwd = process.cwd();
     const { scope, dry } = parseArgs(process.argv);
@@ -97,16 +99,11 @@ async function main() {
     const from = '@template/';
     const to = `${scope.replace(/\/$/, '')}/`;
     for (const f of files) {
-        if (f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js') || f.endsWith('.json')) {
+        const ext = path.extname(f);
+        if (TEXT_EXTENSIONS.has(ext)) {
             await updateFile(f, from, to, dry);
         }
     }
-
-    // 3) Update README keywords
-    const readme = path.join(cwd, 'README.md');
-    try {
-        await updateFile(readme, '@template/', to, dry);
-    } catch {}
 
     const msg = dry ? '[DRY RUN] Mint finished without writing changes.' : 'Mint complete.';
     console.log(`${msg} New scope: ${to}`);
