@@ -33,16 +33,6 @@ async function checkBackend(mode: 'development' | 'test'): Promise<CheckResult> 
             process.env.NODE_ENV = 'development';
         }
 
-        const envFiles =
-            mode === 'test'
-                ? ['.env.test.local', '.env.test', '.env.local', '.env']
-                : ['.env.local', '.env'];
-        loadEnvFiles(envFiles, { cwd });
-
-        if (mode === 'test' && process.env.TEST_DATABASE_URL && !process.env.DATABASE_URL) {
-            process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-        }
-
         try {
             const { getEnv, resetEnvCache } = await import('../../backend/src/config/env.ts');
             resetEnvCache?.();
