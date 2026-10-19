@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import type { ComponentProps, JSX } from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -25,8 +25,7 @@ const checkboxVariants = cva('border-2 rounded', {
 });
 
 interface CheckboxProps
-    extends ComponentProps<typeof CheckboxPrimitive.Root>,
-        VariantProps<typeof checkboxVariants> {}
+    extends ComponentProps<typeof CheckboxPrimitive.Root>, VariantProps<typeof checkboxVariants> {}
 
 export const Checkbox: (props: CheckboxProps) => JSX.Element = ({
     className,

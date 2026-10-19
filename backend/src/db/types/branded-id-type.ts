@@ -9,14 +9,22 @@ export class BrandedIdType<Tag extends string> extends Type<Brand<number, Tag>, 
         if (value === undefined || value === null) {
             throw ValidationError.invalidType(BrandedIdType, value, 'JS');
         }
-        if (!Number.isFinite(value)) {
+        if (!Number.isSafeInteger(value) || value < 1 || value > 2_147_483_647) {
             throw ValidationError.invalidType(BrandedIdType, value, 'JS');
         }
         return value;
     }
 
     override convertToJSValue(value: number | undefined, _platform: Platform): Brand<number, Tag> {
-        return value as unknown as Brand<number, Tag>;
+        if (
+            value === undefined ||
+            !Number.isSafeInteger(value) ||
+            value < 1 ||
+            value > 2_147_483_647
+        ) {
+            throw ValidationError.invalidType(BrandedIdType, value, 'database');
+        }
+        return value as Brand<number, Tag>;
     }
 
     override getColumnType(_prop: EntityProperty, _platform: Platform) {

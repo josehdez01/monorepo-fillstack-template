@@ -1,7 +1,7 @@
 'use client';
 
 import * as ReactDialog from '@radix-ui/react-dialog';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import React, { type HTMLAttributes, type ReactNode } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -31,8 +31,7 @@ const overlayVariants = cva(
 );
 
 interface IDialogBackgroupProps
-    extends HTMLAttributes<HTMLDivElement>,
-        VariantProps<typeof overlayVariants> {}
+    extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof overlayVariants> {}
 
 const DialogBackdrop = React.forwardRef<HTMLDivElement, IDialogBackgroupProps>(
     function DialogBackdrop(inputProps: IDialogBackgroupProps, forwardedRef) {
@@ -78,8 +77,7 @@ const dialogVariants = cva(
 );
 
 interface IDialogContentProps
-    extends HTMLAttributes<HTMLDivElement>,
-        VariantProps<typeof dialogVariants> {
+    extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof dialogVariants> {
     overlay?: IDialogBackgroupProps;
 }
 
@@ -135,8 +133,7 @@ const dialogFooterVariants = cva(
 );
 
 export interface IDialogFooterProps
-    extends HTMLAttributes<HTMLDivElement>,
-        VariantProps<typeof dialogFooterVariants> {}
+    extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof dialogFooterVariants> {}
 
 const DialogFooter = ({ children, className, position, variant, ...props }: IDialogFooterProps) => {
     return (
@@ -174,7 +171,8 @@ const DialogHeaderDefaultLayout = ({ children }: { children: ReactNode }) => {
 };
 
 interface IDialogHeaderProps
-    extends HTMLAttributes<HTMLDivElement>,
+    extends
+        HTMLAttributes<HTMLDivElement>,
         VariantProps<typeof dialogHeaderVariants>,
         ReactDialog.DialogTitleProps {}
 

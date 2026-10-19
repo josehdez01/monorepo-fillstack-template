@@ -1,10 +1,4 @@
-import {
-    Tabs,
-    TabsPanels,
-    TabsTrigger,
-    TabsContent,
-    TabsTriggerList,
-} from '@/components/retroui/Tab';
+import { Tabs, TabsPanels, TabsTrigger, TabsContent, TabsTriggerList } from '../Tab';
 
 export default function TabStyleDefault() {
     return (

@@ -25,14 +25,7 @@
         "valid-typeof": "error",
 
         // Style rules to reduce reliance on Prettier
-        "semi": ["error", "always"],
-        "quotes": ["error", "single", { "avoidEscape": true }],
-        "comma-dangle": ["error", "always-multiline"],
         "prefer-template": "error",
-        "template-curly-spacing": ["error", "never"],
-        "no-trailing-spaces": "error",
-        "eol-last": ["error", "always"],
-        "no-multiple-empty-lines": ["warn", { "max": 1, "maxEOF": 0 }],
         "no-ternary": "off",
         "max-lines-per-function": "off",
 

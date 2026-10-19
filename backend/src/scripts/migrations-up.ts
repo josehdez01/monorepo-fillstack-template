@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { MikroORM } from '@mikro-orm/postgresql';
-import ormConfig from '../../mikro-orm.config.ts';
+import { createOrmConfig } from '../../mikro-orm.config.ts';
 
 async function main() {
-    const orm = await MikroORM.init(ormConfig);
+    const orm = await MikroORM.init(createOrmConfig());
     try {
-        const migrator = orm.getMigrator();
+        const migrator = orm.migrator;
         await migrator.up();
         console.log('[migrations] Up completed');
     } finally {

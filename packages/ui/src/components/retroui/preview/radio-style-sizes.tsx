@@ -1,4 +1,4 @@
-import { RadioGroup } from '@/components/retroui/Radio';
+import { RadioGroup } from '../Radio';
 
 export default function RadioStyleSizes() {
     return (

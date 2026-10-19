@@ -1,7 +1,4 @@
 import { http, HttpResponse } from 'msw';
-
 export const handlers = [
-    http.post('/rpc/hello/greet', async () => {
-        return HttpResponse.json({ json: 'Hello from msw!' });
-    }),
+    http.get('http://localhost:3000/health', () => HttpResponse.json({ ok: true })),
 ];

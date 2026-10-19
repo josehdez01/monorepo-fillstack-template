@@ -1,7 +1,7 @@
-import { Button } from '@/components/retroui/Button';
-import { Dialog } from '@/components/retroui/Dialog';
-import { Input } from '@/components/retroui/Input';
-import { Text } from '@/components/retroui/Text';
+import { Button } from '../Button';
+import { Dialog } from '../Dialog';
+import { Input } from '../Input';
+import { Text } from '../Text';
 
 export default function DialogStyleWithForm() {
     return (

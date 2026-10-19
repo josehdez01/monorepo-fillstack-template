@@ -1,7 +1,4 @@
+import { oc } from '@orpc/contract';
 import { createSession } from './create-session.ts';
-
-export { createSession };
-
-export const session = {
-    createSession,
-} as const;
+import { revokeSession } from './revoke-session.ts';
+export const session = oc.router({ createSession, revokeSession });

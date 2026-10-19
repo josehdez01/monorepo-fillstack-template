@@ -5,10 +5,11 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-    plugins: [react(), tanstackRouter(), tailwindcss()],
+    plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
+    server: { port: 5174, strictPort: true },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src'),
+            '@': path.resolve(import.meta.dirname, './src'),
         },
     },
 });

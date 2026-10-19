@@ -1,4 +1,4 @@
-import { Card } from '@/components/retroui/Card';
+import { Card } from '../Card';
 
 export default function BasicCard() {
     return (

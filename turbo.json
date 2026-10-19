@@ -3,30 +3,45 @@
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
-            "outputs": ["dist/**", "build/**"]
+            "outputs": ["dist/**", "build/**"],
+            "inputs": ["$TURBO_DEFAULT$", ".env*"],
+            "env": ["VITE_*", "NODE_ENV"]
         },
         "typecheck": {
-            "dependsOn": ["^typecheck"]
+            "dependsOn": ["^build"]
         },
         "lint": {},
         "lint:check": {},
         "format": {},
         "format:check": {},
         "test": {
-            "dependsOn": ["build"],
-            "outputs": ["coverage/**"]
+            "dependsOn": ["^build"],
+            "outputs": ["coverage/**"],
+            "cache": false,
+            "passThroughEnv": ["TEST_*", "DATABASE_URL", "REDIS_URL"]
         },
         "dev": {
             "cache": false,
-            "persistent": true
-        },
-        "deploy": {
-            "dependsOn": ["build"],
-            "cache": false
-        },
-        "deploy:r2": {
-            "dependsOn": ["build"],
-            "cache": false
+            "persistent": true,
+            "dependsOn": ["^build"],
+            "passThroughEnv": [
+                "NODE_ENV",
+                "PORT",
+                "ROLE",
+                "DATABASE_URL",
+                "REDIS_URL",
+                "QUEUE_PREFIX",
+                "CORS_ORIGINS",
+                "HOST",
+                "TRUST_PROXY",
+                "VITE_*"
+            ]
         }
-    }
+    },
+    "globalDependencies": [
+        "tsconfig.base.json",
+        "pnpm-workspace.yaml",
+        "infra/env/**/*.ts",
+        "scripts/gen-entities-registry.ts"
+    ]
 }

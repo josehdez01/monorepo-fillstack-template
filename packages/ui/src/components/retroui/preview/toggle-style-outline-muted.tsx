@@ -1,4 +1,4 @@
-import { Toggle } from '@/components/retroui';
+import { Toggle } from '..';
 import { Bold } from 'lucide-react';
 
 export default function ToggleStyleOutlineMuted() {

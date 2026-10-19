@@ -1,5 +1,5 @@
-import { Badge, Checkbox } from '@/components/retroui';
-import { Table } from '@/components/retroui/Table';
+import { Badge, Checkbox } from '..';
+import { Table } from '../Table';
 import { useState } from 'react';
 
 const employees = [

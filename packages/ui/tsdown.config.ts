@@ -1,6 +1,8 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
+    platform: 'browser',
+    fixedExtension: false,
     // Compile all component files individually to preserve structure (bundleless)
     entry: [
         'src/shadcn/index.ts',
@@ -12,6 +14,8 @@ export default defineConfig({
         // Exclude preview example files from build/typings
         '!src/components/retroui/preview/**',
         'src/lib/**/*.ts',
+        'src/hooks/**/*.tsx',
+        'src/components/starter-shell.tsx',
     ],
     unbundle: true,
     dts: true,

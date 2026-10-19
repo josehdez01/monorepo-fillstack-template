@@ -1,4 +1,4 @@
-import { Select } from '@/components/retroui/Select';
+import { Select } from '../Select';
 import React from 'react';
 
 export default function SelectStyleDefault() {

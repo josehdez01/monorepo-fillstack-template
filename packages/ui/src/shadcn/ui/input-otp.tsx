@@ -2,7 +2,7 @@ import * as React from 'react';
 import { OTPInput, OTPInputContext } from 'input-otp';
 import { Dot } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 const InputOTP = React.forwardRef<
     React.ElementRef<typeof OTPInput>,
@@ -33,7 +33,11 @@ const InputOTPSlot = React.forwardRef<
     React.ComponentPropsWithoutRef<'div'> & { index: number }
 >(({ index, className, ...props }, ref) => {
     const inputOTPContext = React.useContext(OTPInputContext);
-    const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
+    const slot = inputOTPContext.slots[index];
+    if (!slot) {
+        throw new RangeError(`OTP slot ${index} is outside the configured input length`);
+    }
+    const { char, hasFakeCaret, isActive } = slot;
 
     return (
         <div

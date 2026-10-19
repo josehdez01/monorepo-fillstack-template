@@ -1,11 +1,13 @@
 import { implement } from '@orpc/server';
 import { appContract } from '@template/contracts/orpc/contract';
 import { createUsersService } from '../../modules/users/service.ts';
-import { makeAuthMiddleware } from '../middleware/auth.ts';
+import { makeDemoSessionMiddleware } from '../middleware/demo-session.ts';
 import type { BaseContext } from '../contexts/baseContext.ts';
 
 export function buildUsers() {
-    const os = implement(appContract.users).$context<BaseContext>().use(makeAuthMiddleware());
+    const os = implement(appContract.users)
+        .$context<BaseContext>()
+        .use(makeDemoSessionMiddleware());
 
     const create = os.create.handler(async ({ input, context }) => {
         const svc = createUsersService({ em: context.em });

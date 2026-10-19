@@ -4,5 +4,6 @@
         "noEmit": true,
         "strict": true
     },
-    "include": ["src/lib/**/*.ts"]
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
+    "exclude": ["src/components/retroui/preview/**"]
 }

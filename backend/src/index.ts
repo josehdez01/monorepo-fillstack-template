@@ -1,114 +1,32 @@
-import { serve } from '@hono/node-server';
-import { createRpcHandler } from './rpc.ts';
-import { createBaseContext } from './rpc/contexts/baseContext.ts';
-import { app } from './app.ts';
 import { getEnv } from './config/env.ts';
 import { createLogger } from '@template/logger';
-import { initORM, makeOrmMiddleware } from './db/orm.ts';
-import { RequestContext } from '@mikro-orm/core';
-import { queueService, setQueueRunWithContext } from './queues/service.ts';
-import { makeRedis } from './infra/redis.ts';
-import { registerQueues } from './queues/index.ts';
+import { createBackendRuntime } from './runtime.ts';
 
-const env = getEnv();
 const logger = createLogger();
-const rpc = createRpcHandler();
-
-type Role = 'api' | 'worker' | 'all';
-const role: Role = env.ROLE;
-const shouldRunWorkers = role !== 'api';
-const shouldRunApi = role !== 'worker';
-
-let reconcileHandle: NodeJS.Timeout | undefined;
-
-async function startApi(orm: Awaited<ReturnType<typeof initORM>>) {
-    // Attach ORM middleware to Hono
-    app.use('*', makeOrmMiddleware(orm));
-    // Mount ORPC into Hono using fetch adapter
-    const BODY_PARSER_METHODS = new Set([
-        'arrayBuffer',
-        'blob',
-        'formData',
-        'json',
-        'text',
-    ] as const);
-    type BodyParserMethod = typeof BODY_PARSER_METHODS extends Set<infer T> ? T : never;
-    function isBodyParserMethod(prop: unknown): prop is BodyParserMethod {
-        return typeof prop === 'string' && (BODY_PARSER_METHODS as Set<string>).has(prop);
+const runtime = createBackendRuntime({ env: getEnv(), logger });
+let stopping = false;
+const shutdown = async (signal: string) => {
+    if (stopping) {
+        return;
     }
-
-    app.use('/rpc/*', async (c, next) => {
-        const request = new Proxy(c.req.raw, {
-            get(target, prop, receiver) {
-                if (isBodyParserMethod(prop)) {
-                    // Delegate to Hono parsers if requested by adapter
-                    return () => c.req[prop]();
-                }
-                return Reflect.get(target, prop, receiver);
-            },
-        });
-
-        const { matched, response } = await rpc.handle(request, {
-            prefix: '/rpc',
-            context: await createBaseContext(c),
-        });
-
-        if (matched) {
-            return c.newResponse(response.body, response);
-        }
-
-        await next();
-    });
-
-    logger.info(`Backend HTTP+RPC starting on 0.0.0.0:${env.PORT}`);
-    const server = serve({
-        fetch: app.fetch,
-        port: env.PORT,
-        hostname: '0.0.0.0',
-    });
-
-    const shutdown = async () => {
-        logger.info('Shutting down gracefully');
-        if (reconcileHandle) {
-            clearInterval(reconcileHandle);
-        }
-        server.close();
-        await orm.close(true);
-    };
-
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
+    stopping = true;
+    logger.info({ signal }, 'backend shutting down');
+    try {
+        await runtime.close();
+    } catch (error) {
+        logger.error({ err: error }, 'backend shutdown failed');
+        process.exitCode = 1;
+    }
+};
+process.once('SIGINT', () => {
+    void shutdown('SIGINT');
+});
+process.once('SIGTERM', () => {
+    void shutdown('SIGTERM');
+});
+try {
+    await runtime.start();
+} catch (error) {
+    logger.error({ err: error }, 'backend startup failed');
+    process.exitCode = 1;
 }
-
-async function bootstrap() {
-    const orm = await initORM();
-
-    // Configure torero-mq to run jobs inside MikroORM RequestContext
-    setQueueRunWithContext(async <T>(fn: () => Promise<T>) => {
-        const em = orm.em.fork({ useContext: true });
-        return await RequestContext.create(em, fn);
-    });
-
-    // Register queues in one place for clarity
-    registerQueues();
-
-    // Queues are always initialized, but workers are only started if getEnv().ROLE !== 'api'
-    // See queueService file and docs/queues.md for more details
-    const redis = makeRedis();
-    await queueService.initQueues({ connection: redis });
-
-    // Periodically reconcile orphaned workers (lock handoff)
-    if (shouldRunWorkers) {
-        reconcileHandle = setInterval(() => {
-            void queueService
-                .reconcileWorkers()
-                .catch((err) => logger.warn({ err }, 'reconcileWorkers error'));
-        }, 15_000);
-    }
-
-    if (shouldRunApi) {
-        await startApi(orm);
-    }
-}
-
-await bootstrap();

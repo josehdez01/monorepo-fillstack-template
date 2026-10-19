@@ -1,84 +1,70 @@
-import { promises as fs } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-function toPascalCase(base) {
-    return base
-        .replace(/\.[^/.]+$/, '')
-        .split(/[^a-zA-Z0-9]+/)
-        .filter(Boolean)
-        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-        .join('');
-}
-
-async function regenerateEntitiesRegistry(startDir) {
-    // Resolve repo root by walking up until backend/src/db/entities exists
-    let dir = startDir;
-    try {
-        const stat = await fs.stat(dir);
-        if (!stat.isDirectory()) {
-            dir = path.dirname(dir);
-        }
-    } catch {}
-    while (true) {
-        const probe = path.join(dir, 'backend', 'src', 'db', 'entities');
-        try {
-            const s = await fs.stat(probe);
-            if (s.isDirectory()) {
-                break;
-            }
-        } catch {}
-        const parent = path.dirname(dir);
-        if (parent === dir) {
-            break;
-        }
-        dir = parent;
-    }
-
-    const entitiesDir = path.join(dir, 'backend', 'src', 'db', 'entities');
-    const outFile = path.join(entitiesDir, 'registry.gen.ts');
-    let files = await fs.readdir(entitiesDir);
-    files = files.filter((f) => f.endsWith('.ts'));
-    // Exclude non-entity and generated files
-    files = files.filter(
-        (f) =>
-            !f.endsWith('.test.ts') &&
-            f !== 'registry.gen.ts' &&
-            f !== 'index.ts' &&
-            f !== 'base.ts',
-    );
-    const entries = files
-        .map((f) => ({ file: f, name: toPascalCase(f) }))
-        .toSorted((a, b) => a.name.localeCompare(b.name));
-    const lines = [];
-    lines.push('// This file is generated. Do not edit manually.');
-    lines.push('// Regenerate via turbo generator or pnpm db:entities:gen');
-    lines.push('');
-    for (const e of entries) {
-        lines.push(`import { ${e.name} } from './${e.file}';`);
-    }
-    lines.push('');
-    lines.push(`export const entities = [${entries.map((e) => e.name).join(', ')}] as const;`);
-    lines.push('');
-    await fs.writeFile(outFile, lines.join('\n'));
-    return `Updated ${path.relative(dir, outFile)} with ${entries.length} entities.`;
+function validName(value) {
+    return /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(value) &&
+        !['constructor', 'prototype', '__proto__'].includes(value)
+        ? true
+        : 'Use a lowercase kebab-case name (e.g. billing-report).';
 }
 
 export default function generator(plop) {
+    const register = plop.setGenerator.bind(plop);
+    plop.setGenerator = (name, config) =>
+        register(name, {
+            ...config,
+            actions: [
+                (answers) => {
+                    const result = validName(answers.name);
+                    if (result !== true) {
+                        throw new Error(result);
+                    }
+                    return 'Validated name';
+                },
+                ...config.actions,
+                (answers) => {
+                    const files = {
+                        package: [`packages/${answers.name}`],
+                        app: [`frontend/${answers.name}`],
+                        'db-entity': [
+                            `backend/src/db/entities/${answers.name}.ts`,
+                            `backend/src/db/repositories/${answers.name}-repo.ts`,
+                            'backend/src/db/entities/registry.gen.ts',
+                        ],
+                        feature: [
+                            `contracts/src/orpc/${answers.name}`,
+                            'contracts/src/orpc/contract.ts',
+                            `backend/src/modules/${answers.name}`,
+                            `backend/src/rpc/routers/${answers.name}.ts`,
+                            'backend/src/rpc/routers/index.ts',
+                        ],
+                        queue: [`backend/src/queues/${answers.name}-queue.ts`],
+                    }[name];
+                    execFileSync('pnpm', ['exec', 'prettier', '--write', ...files], {
+                        cwd: plop.getDestBasePath(),
+                        stdio: 'inherit',
+                    });
+                    return 'Formatted generated files';
+                },
+            ],
+        });
     plop.setGenerator('package', {
         description: 'Generate a new package',
         prompts: [
             {
                 type: 'input',
                 name: 'name',
+                validate: validName,
                 message: 'What is the name of the package? (e.g. ui, logger)',
-            },
-            {
-                type: 'input',
-                name: 'type',
-                message: 'What type of package is this? (e.g. ui, config, utility)',
             },
         ],
         actions: [
+            {
+                type: 'add',
+                path: 'packages/{{name}}/tsdown.config.ts',
+                template:
+                    "import { defineConfig } from 'tsdown';\nexport default defineConfig({ entry: ['src/index.ts'], dts: true, outExtensions: () => ({ js: '.js', dts: '.d.ts' }) });\n",
+            },
             {
                 type: 'add',
                 path: 'packages/{{name}}/package.json',
@@ -103,10 +89,21 @@ export default function generator(plop) {
             {
                 type: 'input',
                 name: 'name',
+                validate: validName,
                 message: 'What is the name of the app? (e.g. dashboard)',
             },
         ],
         actions: [
+            {
+                type: 'add',
+                path: 'frontend/{{name}}/.env.example',
+                template: 'VITE_RPC_URL=http://localhost:3000\n',
+            },
+            {
+                type: 'add',
+                path: 'frontend/{{name}}/src/env.ts',
+                templateFile: 'templates/app/src/env.ts.hbs',
+            },
             {
                 type: 'add',
                 path: 'frontend/{{name}}/package.json',
@@ -182,6 +179,7 @@ export default function generator(plop) {
             {
                 type: 'input',
                 name: 'name',
+                validate: validName,
                 message: 'Queue name (e.g. email-send, report-build)',
             },
         ],
@@ -201,6 +199,7 @@ export default function generator(plop) {
             {
                 type: 'input',
                 name: 'name',
+                validate: validName,
                 message: 'Entity name (PascalCase, e.g. Invoice)',
             },
         ],
@@ -217,8 +216,16 @@ export default function generator(plop) {
             },
             // Keep registry in sync after generation
             async () => {
-                const msg = await regenerateEntitiesRegistry(process.cwd());
-                return msg;
+                execFileSync(
+                    process.execPath,
+                    [
+                        '--import',
+                        'tsx',
+                        path.join(plop.getDestBasePath(), 'scripts/gen-entities-registry.ts'),
+                    ],
+                    { stdio: 'inherit' },
+                );
+                return 'Updated entity registry';
             },
             // Intentionally no service/use-case generation; keep services hand-written
         ],
@@ -231,6 +238,7 @@ export default function generator(plop) {
             {
                 type: 'input',
                 name: 'name',
+                validate: validName,
                 message: 'Feature name (e.g. posts, comments)',
             },
         ],

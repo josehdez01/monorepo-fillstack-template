@@ -1,7 +1,7 @@
 'use client';
 
 import { Bold, Italic, Underline } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/retroui';
+import { ToggleGroup, ToggleGroupItem } from '..';
 
 export default function ToggleGroupStyleOutlined() {
     return (

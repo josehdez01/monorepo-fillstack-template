@@ -30,3 +30,9 @@ export class AuthError extends AppError<undefined> {
         super(message, 'UNAUTHORIZED', 401);
     }
 }
+
+export class ConflictError extends AppError<{ field: string }> {
+    constructor(message: string, field: string) {
+        super(message, 'CONFLICT', 409, { field });
+    }
+}

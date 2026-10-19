@@ -1,40 +1,86 @@
 import { Hono } from 'hono';
-import type { EntityManager } from '@mikro-orm/core';
 import { cors } from 'hono/cors';
+import type { EntityManager } from '@mikro-orm/core';
+import type { MikroORM } from '@mikro-orm/postgresql';
 import { createLogger, type Logger } from '@template/logger';
+import { makeOrmMiddleware } from './db/orm.ts';
+import { createRpcHandler } from './rpc.ts';
+import { createBaseContext } from './rpc/contexts/baseContext.ts';
 
-export const app = new Hono<{
-    Variables: { em: EntityManager; logger: Logger; requestId: string };
-}>();
+interface AppVariables {
+    em: EntityManager;
+    logger: Logger;
+    requestId: string;
+}
+export interface AppOptions {
+    orm?: MikroORM;
+    demoSessionsEnabled?: boolean;
+    logger?: Logger;
+    allowedOrigins?: string[];
+    trustProxy?: boolean;
+    ready?: () => boolean;
+}
 
-app.use('*', cors());
-
-app.get('/health', (c) => c.json({ ok: true }));
-
-// Unified request logging middleware
-app.use('*', async (c, next) => {
-    const start = Date.now();
-    const requestId = crypto.randomUUID();
-    const base = createLogger();
-    const logger = base.child({ requestId });
-    c.set('requestId', requestId);
-    c.set('logger', logger);
-    try {
-        await next();
-    } finally {
-        const ms = Date.now() - start;
-        const method = c.req.method;
-        const path = new URL(c.req.url).pathname;
-        const status = c.res?.status ?? 200;
-        logger.info({ method, path, status, ms }, 'request complete');
+/** A fresh Hono instance per runtime/test; no global route or middleware registration. */
+export function createApp(options: AppOptions = {}) {
+    const app = new Hono<{ Variables: AppVariables }>();
+    const baseLogger = options.logger ?? createLogger();
+    app.use('*', async (c, next) => {
+        const start = performance.now();
+        const requestId = crypto.randomUUID();
+        const logger = baseLogger.child({ requestId });
+        c.set('requestId', requestId);
+        c.set('logger', logger);
+        c.header('x-request-id', requestId);
+        try {
+            await next();
+        } finally {
+            logger.info(
+                {
+                    method: c.req.method,
+                    path: new URL(c.req.url).pathname,
+                    status: c.res.status,
+                    ms: Math.round(performance.now() - start),
+                },
+                'request complete',
+            );
+        }
+    });
+    // Empty means same-origin. Cross-origin access is an explicit deployment choice.
+    app.use(
+        '*',
+        cors({
+            origin: options.allowedOrigins ?? [],
+            allowHeaders: ['Content-Type', 'x-session-id'],
+            exposeHeaders: ['x-request-id'],
+        }),
+    );
+    app.get('/health', (c) => c.json({ ok: true }));
+    app.get('/ready', (c) => {
+        const ready = options.ready?.() ?? true;
+        return c.json({ ready }, ready ? 200 : 503);
+    });
+    if (options.orm) {
+        app.use('/rpc/*', makeOrmMiddleware(options.orm));
+        const rpc = createRpcHandler();
+        app.all('/rpc/*', async (c, next) => {
+            const { matched, response } = await rpc.handle(c.req.raw, {
+                prefix: '/rpc',
+                context: await createBaseContext(
+                    c,
+                    options.trustProxy,
+                    options.demoSessionsEnabled,
+                ),
+            });
+            if (matched) {
+                return c.newResponse(response.body, response);
+            }
+            await next();
+        });
     }
-});
-
-// Hono error handler to standardize REST errors
-app.onError((err, c) => {
-    const logger = c.var.logger ?? createLogger();
-    logger.error({ err }, 'unhandled error');
-    return c.json({ error: 'internal_error' }, 500);
-});
-
-// No REST application routes here — app features live under ORPC (/rpc)
+    app.onError((error, c) => {
+        (c.var.logger ?? baseLogger).error({ err: error }, 'unhandled error');
+        return c.json({ error: 'internal_error', requestId: c.var.requestId }, 500);
+    });
+    return app;
+}

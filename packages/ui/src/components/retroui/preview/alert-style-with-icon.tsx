@@ -1,4 +1,4 @@
-import { Alert } from '@/components/retroui/Alert';
+import { Alert } from '../Alert';
 import { CheckCircle } from 'lucide-react';
 
 export default function AlertStyleDefaultIcon() {

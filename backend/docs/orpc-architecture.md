@@ -1,46 +1,15 @@
-ORPC Architecture
+# RPC architecture
 
-Overview
+`contracts/src/orpc` is the public schema and declared-error boundary. `backend/src/rpc/routers` implements it with oRPC's contract-first API. Routers call domain services; services operate on the request-scoped MikroORM entity manager; database constraints enforce concurrent invariants. Changes propagate to typed clients through workspace conditional exports during development and built package exports in production.
 
-- Hono acts as the HTTP transport: `/health`, middleware, and future webhooks.
-- ORPC provides the application API under `/rpc` with contract-first design (Zod schemas).
-- Business logic is organized into feature services (modules) that orchestrate repositories and queues.
-- All data-related code (entities, repositories, ORM setup) lives under `backend/src/db/`.
+`createApp` returns a fresh Hono application. It installs request metadata/logging, an explicit browser-origin allowlist, health/readiness probes, request-scoped ORM middleware and the oRPC fetch adapter. The native Request goes directly to the adapter; body parser proxies and shared mutable route registration are unnecessary.
 
-Motivation
+`BaseContext` supplies request ID, logger, headers, peer address, scoped entity manager and the server-owned `demoSessionsEnabled` flag. Forwarded IP addresses are ignored unless `TRUST_PROXY=true` is configured for a trusted reverse proxy. Domain errors become declared oRPC errors through the application error middleware; unexpected infrastructure errors remain server errors.
 
-- Contract-first avoids schema drift and tightens type guarantees across frontend and backend.
-- Clear separation: handlers (IO), services (business logic), repositories (persistence) enables scaling and testing.
-- Centralized data layer under `db/` provides a single place to reason about persistence and migrations.
+## Demo sessions are not authentication
 
-Code Organization
+Anonymous sessions only demonstrate a bearer-session boundary. They have a 24-hour lifetime, persist expiry/revocation, use UUID token validation, and are checked in the database on every request. The public revoke operation invalidates the current session. Tokens are never embedded in greetings or logger bindings.
 
-- contracts/src/orpc/\*\* — namespaced contracts and root contract aggregator
-- backend/src/rpc/\*\* — handlers grouped per namespace (compose the contract)
-- backend/src/modules/<feature>/service.ts — feature services (pure functions)
-- backend/src/db/\*\* — MikroORM entities, repositories, and ORM bootstrap
-- backend/src/queues/\*\* — typed queues via `torero-mq`
+The production runtime disables both demo issuance and demo-protected endpoints, with no enabling flag. Before building a real product, replace the demo-session middleware with a real identity provider and authorization policy tied to users/tenants. The sample user directory does not establish user ownership and must not be exposed as a production account API.
 
-Request Context
-
-- `RpcContext` provides `requestId`, `logger`, a per-request `EntityManager`, and `headers`.
-- Middleware attaches the context in `backend/src/index.ts` when mounting the RPC handler.
-- Middleware can refine/enrich context: applying `makeAuthMiddleware()` adds `session` to `context` for downstream handlers. ORPC redefines the context shape automatically when a middleware is applied, so downstream handlers see the augmented type without additional casting.
-
-Error Policy
-
-- Services throw `AppError` (`ValidationError`, `NotFoundError`, etc.).
-- The preconfigured implementer maps `AppError` → `ORPCError` at the router level with built‑in middleware dedupe.
-
-Development Flow
-
-1. Define or update a contract in `contracts/src/orpc/<ns>/<proc>.ts` (inputs/outputs/errors).
-2. Implement the handler in `backend/src/rpc/<ns>.ts` using the contract.
-3. Delegate to a service in `backend/src/modules/<feature>/service.ts` and reuse repositories under `backend/src/db/`.
-
-Notes
-
-- Keep handlers thin; prefer pushing logic into services for reuse and testing.
-- Prefer repository signatures that accept `Entity['id']` branded types; cast at the API edges as needed.
-- Avoid global singletons for data or auth; rely on the request-scoped context.
-- Per-namespace implementers keep context narrow and make middleware scoping explicit. For example, `hello` uses `makeAuthMiddleware()`; the handler can safely read `context.session.sessionId`, and the string response demonstrates the middleware-enriched context (`Hello, World! session=<id>`).
+The runtime owns HTTP, workers and ORM resources explicitly. Shutdown stops accepting requests, drains jobs/requests, and then closes the database. Application imports do not connect to services.

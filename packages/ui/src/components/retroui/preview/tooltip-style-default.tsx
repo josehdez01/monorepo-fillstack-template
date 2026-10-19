@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Tooltip } from '@/components/retroui';
+import { Button, Tooltip } from '..';
 
 export default function TooltipStyleDefault() {
     return (

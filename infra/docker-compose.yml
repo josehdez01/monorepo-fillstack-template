@@ -1,17 +1,30 @@
+name: fullstack-template
 services:
     postgres:
-        image: postgres:16
-        ports: ['5432:5432']
+        image: postgres:18
+        ports: ['127.0.0.1:${POSTGRES_PORT:-5432}:5432']
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: app
         volumes:
-            - pgdata:/var/lib/postgresql/data
-
+            - pgdata18:/var/lib/postgresql
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres -d app']
+            interval: 2s
+            timeout: 5s
+            retries: 30
     redis:
-        image: redis:7
-        ports: ['6379:6379']
-
+        image: redis:8.10.2-alpine
+        ports: ['127.0.0.1:${REDIS_PORT:-6379}:6379']
+        command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+        volumes:
+            - redisdata:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 2s
+            timeout: 5s
+            retries: 30
 volumes:
-    pgdata:
+    pgdata18:
+    redisdata:

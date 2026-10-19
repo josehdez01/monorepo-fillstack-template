@@ -1,4 +1,4 @@
-import { Switch } from '@/components/retroui/Switch';
+import { Switch } from '../Switch';
 import React from 'react';
 
 export default function SwitchStyleDisabled() {

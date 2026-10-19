@@ -8,12 +8,25 @@
     "browser": "dist/browser.js",
     "exports": {
         ".": {
-            "browser": "./dist/browser.js",
+            "development": {
+                "browser": "./src/browser.ts",
+                "default": "./src/index.ts"
+            },
+            "browser": {
+                "development": "./src/browser.ts",
+                "default": "./dist/browser.js"
+            },
             "import": "./dist/index.js",
             "default": "./dist/index.js"
         },
-        "./browser": "./dist/browser.js",
-        "./node": "./dist/node.js"
+        "./browser": {
+            "development": "./src/browser.ts",
+            "default": "./dist/browser.js"
+        },
+        "./node": {
+            "development": "./src/node.ts",
+            "default": "./dist/node.js"
+        }
     },
     "types": "dist/index.d.ts",
     "scripts": {
@@ -25,11 +38,11 @@
         "format:check": "prettier --check ."
     },
     "dependencies": {
-        "zod": "4.1.12"
+        "zod": "catalog:"
     },
     "devDependencies": {
-        "tsdown": "0.15.12",
-        "typescript": "5.9.3",
-        "@types/node": "24.9.2"
+        "tsdown": "catalog:",
+        "typescript": "catalog:",
+        "@types/node": "catalog:"
     }
 }

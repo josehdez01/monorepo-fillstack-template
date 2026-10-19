@@ -1,11 +1,11 @@
 import { createORPCClient } from '@orpc/client';
 import { RPCLink } from '@orpc/client/fetch';
 import type { ContractRouterClient } from '@orpc/contract';
+import { createTanstackQueryUtils } from '@orpc/tanstack-query';
 import type { AppContract } from '@template/contracts/orpc/contract';
+import { env } from '../env';
 
-export type AppClient = ContractRouterClient<AppContract>;
-
-export function makeClient(base: string): AppClient {
-    const url = `${base.replace(/\/$/, '')}/rpc`;
-    return createORPCClient(new RPCLink({ url }));
-}
+export const client: ContractRouterClient<AppContract> = createORPCClient(new RPCLink({
+    url: `${env.VITE_RPC_URL.replace(/\/$/, '')}/rpc`,
+}));
+export const orpc = createTanstackQueryUtils(client);

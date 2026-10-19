@@ -16,10 +16,7 @@ const projects: Project[] = [
     {
         name: 'backend',
         dir: 'backend',
-        targets: [
-            { from: '.env.example', to: '.env.local' },
-            { from: '.env.test.example', to: '.env.test.local' },
-        ],
+        targets: [{ from: '.env.example', to: '.env.local' }],
     },
     {
         name: 'frontend:landing_page',
@@ -53,7 +50,7 @@ async function ensureFile(from: string, to: string, { force = false } = {}) {
         await fs.writeFile(to, src);
         console.log(`[env] Wrote ${path.relative(process.cwd(), to)} from ${path.basename(from)}`);
     } catch (err) {
-        console.warn(`[env] Skipped ${path.relative(process.cwd(), to)}: ${String(err)}`);
+        throw new Error(`Could not prepare ${path.relative(process.cwd(), to)}`, { cause: err });
     }
 }
 

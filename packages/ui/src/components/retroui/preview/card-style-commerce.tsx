@@ -1,5 +1,5 @@
-import { Button } from '@/components/retroui/Button';
-import { Card } from '@/components/retroui/Card';
+import { Button } from '../Button';
+import { Card } from '../Card';
 
 export default function CommerceCard() {
     return (

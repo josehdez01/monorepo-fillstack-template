@@ -8,9 +8,6 @@ export function defineModel<Name extends string, Props extends Record<string, un
     name: Name,
     properties: (p: typeof defineEntity.properties) => Props,
 ) {
-    // Prefer builder-style properties to unlock full type inference.
-    // Fallback: if an object is provided, we still construct a valid schema,
-    // but inference will be limited to MikroORM’s default heuristics.
     const propertiesBuilder = (p: typeof defineEntity.properties) => ({
         ...getBaseProperties<Name>(p),
         ...properties(p),

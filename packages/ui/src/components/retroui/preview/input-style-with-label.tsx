@@ -1,5 +1,5 @@
-import { Input } from '@/components/retroui/Input';
-import { Label } from '@/components/retroui/Label';
+import { Input } from '../Input';
+import { Label } from '../Label';
 
 export default function InputStyleWithLabel() {
     return (

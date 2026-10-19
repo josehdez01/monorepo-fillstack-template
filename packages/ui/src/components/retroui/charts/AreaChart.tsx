@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import React from 'react';
 import {
     Area,
@@ -30,7 +30,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
     (
         {
             data = [],
-            index,
+            index: indexKey,
             categories = [],
             strokeColors = ['var(--foreground)'],
             fillColors = ['var(--primary)'],
@@ -92,7 +92,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />}
 
                         <XAxis
-                            dataKey={index}
+                            dataKey={indexKey}
                             axisLine={false}
                             tickLine={false}
                             className="text-xs fill-muted-foreground"
@@ -123,7 +123,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                        {index}
+                                                        {indexKey}
                                                     </span>
                                                     <span className="font-bold text-muted-foreground">
                                                         {label}
@@ -132,7 +132,9 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                                                 {payload.map((entry, index) => (
                                                     <div key={index} className="flex flex-col">
                                                         <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                            {entry.dataKey}
+                                                            {typeof entry.dataKey === 'function'
+                                                                ? 'Value'
+                                                                : entry.dataKey}
                                                         </span>
                                                         <span
                                                             className="font-bold"
@@ -150,7 +152,8 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                         )}
 
                         {categories.map((category, index) => {
-                            const strokeColor = strokeColors[index] || strokeColors[0];
+                            const strokeColor =
+                                strokeColors[index] || strokeColors[0] || 'currentColor';
                             const gradientId = `gradient-${chartId}-${category}`;
 
                             return (
