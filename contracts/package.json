@@ -52,5 +52,6 @@
         "tsdown": "catalog:",
         "typescript": "catalog:",
         "vitest": "catalog:"
-    }
+    },
+    "private": true
 }

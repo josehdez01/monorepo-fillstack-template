@@ -51,5 +51,6 @@
         "tsx": "catalog:",
         "vitest": "catalog:",
         "@types/pg": "catalog:"
-    }
+    },
+    "private": true
 }

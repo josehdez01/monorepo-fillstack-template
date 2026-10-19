@@ -46,7 +46,8 @@ try {
     if (!registry.includes('SmokeRecord')) {
         throw new Error('Entity generator did not update registry');
     }
-    run(['install']);
+    // Generated workspace packages intentionally need new lockfile importers, including in CI.
+    run(['install', '--no-frozen-lockfile']);
     run(['build']);
     run(['typecheck']);
     console.log('All five generated slices build and typecheck in a separate workspace.');
