@@ -1,109 +1,31 @@
-# Queues: Typed BullMQ Facade
+# Queues
 
-- Define queues with Zod and a process function.
-- Inject Redis connection at init.
-- Optional worker output validation.
-- Idempotent publish/schedule and repeatable jobs as a result stream.
-- Exclusive worker lock per queue (opt‑in via flag).
-
-## Quick Start
+`contracts/src/queues` contains Torero 0.2 producer contracts. Contracts describe stable queue names, versioned input/output schemas and enqueue defaults. Importing a contract opens no Redis connection. Backend implementations live in `src/queues`; `createQueueRuntime` owns their explicit start/close lifecycle.
 
 ```ts
-// backend/src/queues/sum-queue.ts
-import { z } from 'zod';
-import { queueService } from './service.ts';
+import { createQueueClient } from 'torero-mq';
+import { queueContracts } from '@template/contracts/queues/sum';
 
-export const sumQueue = queueService.defineQueue({
-    name: 'sum',
-    inputSchema: z.object({ a: z.number(), b: z.number() }),
-    outputSchema: z.object({ sum: z.number() }),
-    async process(input) {
-        return { sum: input.a + input.b };
-    },
-    defaults: {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 500 },
-        timeoutMs: 10_000,
-        removeOnComplete: true,
-        removeOnFail: false,
-        concurrency: 5,
-    },
+const client = createQueueClient(queueContracts, {
+    connection: { url: process.env.REDIS_URL! },
+    prefix: 'my-app',
 });
+try {
+    const handle = await client.jobs.sum.publish({ a: 2, b: 3 });
+    const result = await handle.wait({ timeoutMs: 5_000 }); // { sum: 5 }
+} finally {
+    await client.close();
+}
 ```
 
-## Init Modes
+With `pnpm dev` (ROLE=all) or a worker running, try `pnpm --filter @template/backend jobs:demo` from another terminal. Pass optional numbers, for example `pnpm --filter @template/backend jobs:demo 7 11`. The command publishes the shared sum contract, waits up to five seconds, prints the result and closes its producer connections.
 
-Producer‑only:
+`ROLE=api` starts only producers and HTTP; `ROLE=worker` starts workers without HTTP; `ROLE=all` starts both. Every worker attempt enters a new MikroORM `RequestContext` through Torero middleware. Add database work using the injected `context.em`; never reuse a global entity manager or retain an ORM entity in a job payload. Enqueue stable IDs, then look up current state in the worker.
 
-```ts
-import { queueService } from '../queues/service.ts';
-import { makeRedis } from '../infra/redis.ts';
-import { registerQueues } from '../queues/index.ts';
+BullMQ distributes work across worker processes natively; there is no application-level exclusive worker lease or reconciliation interval. Configure concurrency and cooperative deadlines with `.worker(...)`. A timeout aborts the handler signal and waits for it to settle, so handlers must cooperate with cancellation. Shutdown drains requests/jobs before closing the ORM.
 
-registerQueues();
-await queueService.initQueues({ connection: makeRedis() });
-```
+Torero preserves raw input across retries, validates/transform it once per attempt, validates output on the worker, and transports rich values without transforming a second time on the producer. Completed results use bounded retention by default. `removeOnComplete: true` makes late result retrieval impossible. Schema wire changes require a queue contract version change and coordinated deployments.
 
-Worker process:
+For database-to-queue atomicity, use an application outbox. Stable per-recipient `jobId`s can deduplicate retained jobs, but do not provide exactly-once external side effects. Handlers must remain idempotent. Delayed re-engagement should recheck current eligibility before sending; cancelling delayed work alone cannot prevent an already active job.
 
-```ts
-registerQueues();
-await queueService.initQueues({ connection: makeRedis() });
-// Periodically reconcile orphaned workers (lock handoff)
-setInterval(() => queueService.reconcileWorkers(), 15_000);
-```
-
-## Publishing
-
-```ts
-const { jobId, awaitResult } = await sumQueue.publish({ a: 1, b: 2 });
-const result = await awaitResult();
-```
-
-- Input is validated with Zod on publish and again inside the worker.
-- Output is validated when `outputSchema` is provided.
-
-## Options Builder and Idempotency
-
-```ts
-import { toBullOptions, deriveJobId } from 'torero-mq';
-
-const opts = toBullOptions({ attempts: 2 }, { priority: 5 });
-// Predictable job id from your own idempotency key
-const id = deriveJobId('queues', 'sum', 'user:42');
-```
-
-## Late Registration
-
-If a queue registers after `initQueues()` and late registration is disabled, an error guides you:
-
-“Queue 'X' registered after initQueues(). Do one of: (1) import earlier, (2) set allowLateRegistration: true, or (3) call queueService.materialize('X') manually.”
-
-You can enable this either by:
-
-```ts
-queueService.allowLateRegistration();
-// or
-await queueService.initQueues({ connection, runWorkers: false, allowLateRegistration: true });
-```
-
-## Exclusive Workers and Roles
-
-- Enabled by default when `runWorkers: true`.
-- Uses a Redis key lock per queue with a heartbeat.
-- Disable with `exclusiveWorkers: false`.
-- Toggle worker mode via env `ROLE`:
-    - `ROLE=api` — API only (no workers; queues still initialize for producers).
-    - `ROLE=worker` — workers only (no HTTP server).
-    - `ROLE=all` — both in one process (default). Queues register before workers start, then the API starts.
-
-## Typing Tips
-
-- The queue name is a literal type, which flows to `ctx.queueName`.
-- Collect handles in a map to get end‑to‑end types:
-
-```ts
-export const queues = { sum: sumQueue };
-// Full result type from publish
-export type SumOut = Awaited<ReturnType<typeof queues.sum.publish>>;
-```
+The integration suite runs real migrated PostgreSQL and Redis in disposable containers: `pnpm test:integration` from the repository root.

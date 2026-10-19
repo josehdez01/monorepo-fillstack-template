@@ -1,31 +1,16 @@
 import { RequestContext } from '@mikro-orm/core';
-import { MikroORM } from '@mikro-orm/postgresql';
+import type { MikroORM } from '@mikro-orm/postgresql';
 import type { MiddlewareHandler } from 'hono';
-import ormConfig from '../../mikro-orm.config.ts';
 
-let ormInstance: MikroORM | undefined;
-
-export async function initORM(): Promise<MikroORM> {
-    if (ormInstance) {
-        return ormInstance;
-    }
-    ormInstance = await MikroORM.init(ormConfig);
-    return ormInstance;
-}
-
-export function getORM(): MikroORM {
-    if (!ormInstance) {
-        throw new Error('ORM not initialized. Call initORM() first.');
-    }
-    return ormInstance;
-}
-
+/** The runtime owns the ORM; each request receives the actual context-managed fork. */
 export function makeOrmMiddleware(orm: MikroORM): MiddlewareHandler {
-    return async function ormMiddleware(c, next) {
-        const em = orm.em.fork();
-        await RequestContext.create(em, () => {
+    return async (c, next) =>
+        RequestContext.create(orm.em, async () => {
+            const em = RequestContext.getEntityManager();
+            if (!em) {
+                throw new Error('ORM request context was not initialized');
+            }
             c.set('em', em);
-            return next();
+            await next();
         });
-    };
 }

@@ -1,11 +1,12 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-    plugins: [tsconfigPaths()],
+    resolve: { conditions: ['development'] },
     test: {
-        include: ['src/**/*.{test,spec}.ts', 'src/**/*.{test,spec}.tsx'],
+        include: ['src/**/*.test.ts'],
         exclude: ['node_modules/**', 'dist/**', 'coverage/**'],
         setupFiles: ['src/test/setup-env.ts'],
+        testTimeout: 15_000,
+        hookTimeout: 30_000,
     },
 });

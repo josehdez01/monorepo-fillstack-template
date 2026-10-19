@@ -1,4 +1,4 @@
-import { Button } from '@/components/retroui/Button';
+import { Button } from '../Button';
 import { Trash } from 'lucide-react';
 
 export default function ButtonStyleWithIcon() {

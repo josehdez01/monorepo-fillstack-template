@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import React from 'react';
 import {
     Bar,
@@ -30,7 +30,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
     (
         {
             data = [],
-            index,
+            index: indexKey,
             categories = [],
             strokeColors = ['var(--foreground)'],
             fillColors = ['var(--primary)'],
@@ -51,7 +51,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                 <ResponsiveContainer width="100%" height="100%">
                     <RechartsBarChart
                         data={data}
-                        layout={alignment === 'horizontal' ? 'vertical' : undefined}
+                        layout={alignment === 'horizontal' ? 'vertical' : 'horizontal'}
                         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
                         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />}
@@ -68,7 +68,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
 
                                 <YAxis
                                     type="category"
-                                    dataKey={index}
+                                    dataKey={indexKey}
                                     axisLine={false}
                                     tickLine={false}
                                     className="text-xs fill-muted-foreground"
@@ -78,7 +78,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                         ) : (
                             <>
                                 <XAxis
-                                    dataKey={index}
+                                    dataKey={indexKey}
                                     axisLine={false}
                                     tickLine={false}
                                     className="text-xs fill-muted-foreground"
@@ -111,7 +111,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                        {index}
+                                                        {indexKey}
                                                     </span>
                                                     <span className="font-bold text-muted-foreground">
                                                         {label}
@@ -120,7 +120,9 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                                                 {payload.map((entry, index) => (
                                                     <div key={index} className="flex flex-col">
                                                         <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                            {entry.dataKey}
+                                                            {typeof entry.dataKey === 'function'
+                                                                ? 'Value'
+                                                                : entry.dataKey}
                                                         </span>
                                                         <span
                                                             className="font-bold"
@@ -139,7 +141,8 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
 
                         {categories.map((category, index) => {
                             const fillColor = fillColors[index] || fillColors[0];
-                            const strokeColor = strokeColors[index] || strokeColors[0];
+                            const strokeColor =
+                                strokeColors[index] || strokeColors[0] || 'currentColor';
 
                             return (
                                 <Bar

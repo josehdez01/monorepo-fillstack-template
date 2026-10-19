@@ -4,11 +4,12 @@
         "composite": true,
         "outDir": "dist",
         "jsx": "react-jsx",
-        "baseUrl": ".",
         "strict": true,
         "paths": {
             "@/*": ["./src/*"]
-        }
+        },
+        "module": "ESNext",
+        "moduleResolution": "Bundler"
     },
     "include": ["src"]
 }

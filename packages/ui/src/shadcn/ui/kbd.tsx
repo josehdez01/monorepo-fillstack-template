@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 const Kbd = ({ className, ...props }: React.ComponentProps<'kbd'>): JSX.Element => (
     <kbd

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 const loaderVariants = cva('flex gap-1', {
     variants: {
@@ -22,7 +22,8 @@ const loaderVariants = cva('flex gap-1', {
 });
 
 interface LoaderProps
-    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color'>,
+    extends
+        Omit<React.HTMLAttributes<HTMLDivElement>, 'color'>,
         VariantProps<typeof loaderVariants> {
     asChild?: boolean;
     count?: number; // number of bouncing dots

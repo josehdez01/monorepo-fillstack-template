@@ -13,8 +13,9 @@
         "format:check": "prettier --check ."
     },
     "devDependencies": {
-        "@playwright/test": "1.49.1",
-        "@types/node": "22.10.5",
-        "typescript": "5.9.3"
+        "@playwright/test": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "@axe-core/playwright": "catalog:"
     }
 }

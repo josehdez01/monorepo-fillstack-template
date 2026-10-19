@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 export function Textarea({ placeholder = 'Enter text...', className = '', ...props }) {
     return (

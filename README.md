@@ -1,297 +1,115 @@
-# Monorepo Template
+# Fullstack Template
 
-A production-ready, high-performance monorepo template designed for modern full-stack development. Built with speed, scalability, and developer experience in mind.
+An opinionated TypeScript workspace for building apps with a contract-first API, PostgreSQL, and typed background jobs. Three independently deployable React apps share contracts, UI components, environment helpers, and logging.
 
-## Architecture Overview
+**Node 26 · pnpm 12 · TypeScript 7 · React 19 · Vite 8 · oRPC · MikroORM 7 · Torero 0.2 · BullMQ 6**
 
-This template implements a strict, type-safe flow from Database to UI:
+The examples are deliberately small enough to replace. The user app demonstrates real database writes, typed validation errors, and session recovery; the admin app checks API availability; the landing page introduces the project. Anonymous **demo sessions are not authentication** and are disabled in production. Add your identity provider and authorization rules before exposing protected application features.
+
+## Start building
+
+Requirements: Node **26.12.0**, pnpm **12.14.0**, and Docker Compose v2. The exact toolchain is recorded in `.node-version`, `.tool-versions`, and `package.json`. Install pnpm with `npm install --global pnpm@12.14.0` if needed.
+
+```sh
+git clone https://github.com/josehdez01/monorepo-fillstack-template.git my-app
+cd my-app
+pnpm install
+pnpm setup
+pnpm dev
+```
+
+`setup` copies missing environment files, waits for PostgreSQL and Redis, and applies migrations. It preserves existing `.env.local` files. `dev` starts the API and user app; `pnpm dev:all` also starts the landing and admin apps.
+
+| Application            | Address                                                    |
+| ---------------------- | ---------------------------------------------------------- |
+| User app               | http://localhost:5175                                      |
+| Admin app              | http://localhost:5174                                      |
+| Landing page           | http://localhost:5173                                      |
+| API health / readiness | http://localhost:3000/health · http://localhost:3000/ready |
+
+The local services bind to loopback. If ports 5432 or 6379 are occupied, set `POSTGRES_PORT` / `REDIS_PORT` when starting Compose and update `backend/.env.local` to match. `pnpm infra:down` stops services without deleting data. PostgreSQL 18 uses a new `pgdata18` volume; upgrading an existing PostgreSQL 16 checkout requires a dump/restore rather than reusing its data directory.
+
+To rename the workspace scope, run `pnpm mint -- --scope @acme --dry`, inspect the planned scope, then run without `--dry` and run `pnpm install` again. Alternatively, use GitHub's **Use this template** action to create your repository first.
+
+## Architecture
 
 ```mermaid
 flowchart LR
-    DB[(Postgres)] <--> ORM[MikroORM Entities]
-    ORM <--> Service[Backend Services]
-    Service <--> RPC[ORPC Router]
-    RPC -- "Typed Contract" --> Client[Frontend ORPC Client]
-    Client <--> React[React Components]
+    UI[React + TanStack Query] --> Contract[oRPC contracts + Zod]
+    Contract --> API[Hono + oRPC handlers]
+    API --> Service[Domain services]
+    Service --> DB[(PostgreSQL + MikroORM)]
+    Producer[Typed Torero producer] --> Redis[(Redis + BullMQ)]
+    Redis --> Worker[Torero worker + scoped EntityManager]
+    Worker --> DB
 ```
 
-- **Backend**: Hono server exposing an ORPC API.
-- **Contracts**: Shared package (`packages/contracts`) defining Zod schemas and RPC procedures.
-- **Frontend**: React apps consuming the API via a strongly-typed client.
+- `contracts/`: browser-safe RPC schemas, branded IDs, and queue contracts. No backend imports.
+- `backend/`: Hono transport, thin RPC handlers, domain services, repositories, and explicit runtime ownership.
+- `frontend/{user_app,admin_app,landing_page}/`: Vite applications with file-based TanStack Router and typed oRPC clients.
+- `packages/ui/`: shared accessible application shell, shadcn/ui and RetroUI components. Import individual components to keep bundles small.
+- `packages/{env,logger}/`: validated runtime configuration and structured logging with credential redaction.
+- `packages/e2e/`: browser tests against the real API and disposable PostgreSQL/Redis.
 
-## Features
+Development resolves workspace source through package export conditions; production resolves built JavaScript. Shared packages are built before consumers. The root typecheck includes every app and production UI component. Exact dependency versions live in the pnpm workspace catalog, so shared versions and generated apps stay aligned.
 
-- **Monorepo Management**: [Turborepo](https://turbo.build/) + [pnpm workspaces](https://pnpm.io/workspaces)
-- **Backend**: [Hono](https://hono.dev/) transport + [ORPC](https://orpc.unnoq.com/) API
-- **Frontend**: [Vite](https://vitejs.dev/) + [React](https://react.dev/) + [TanStack Router](https://tanstack.com/router)
-- **Database**: [MikroORM](https://mikro-orm.io/) + Postgres
-- **Type Safety**: Strict TypeScript everywhere, shared contracts via [orpc](https://orpc.unnoq.com/)
-- **UI Library**: [shadcn/ui](https://ui.shadcn.com/) + Tailwind CSS
-- **Testing**: [Vitest](https://vitest.dev/)
-- **Linting**: [oxlint](https://oxc-project.github.io/docs/guide/usage/linter.html) + Prettier
-- **Scaffolding**: Built-in generators via `turbo gen`
+See [architecture decisions](REPO_STRUCTURE.md), [RPC patterns](backend/src/rpc/README.md), [testing](backend/docs/testing.md), and [deployment](docs/deployment.md).
 
-## Getting Started
+## Commands
 
-### Prerequisites
+| Command                                                        | Purpose                                                                    |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `pnpm check`                                                   | Lint, format check, typecheck, unit tests, production build                |
+| `pnpm test`                                                    | Unit and component tests; no external services required                    |
+| `pnpm test:generators`                                         | Generate all five slices in a separate workspace, then build and typecheck |
+| `pnpm test:integration`                                        | Disposable PostgreSQL/Redis, migrations, real RPC and workers              |
+| `pnpm test:e2e`                                                | Disposable services, built backend, real browser flows                     |
+| `pnpm --filter @template/e2e exec playwright install chromium` | Install the local browser once                                             |
+| `pnpm env:doctor`                                              | Validate environment wiring without printing credentials                   |
+| `pnpm lint`                                                    | Apply lint and formatting fixes                                            |
+| `pnpm audit`                                                   | Check the full dependency graph for known vulnerabilities                  |
 
-- Node.js >= 24.11.0
-- pnpm >= 10.20.0
-- Docker (for local database)
+Integration and browser runs allocate their own Compose project and random database/Redis ports, then remove their containers on completion. They never reset your application database. Browser tests use API port 4300 and app ports 5173–5175, so stop local app servers first.
 
-> **Tip:** This repo includes a `.tool-versions` file. If you use [asdf](https://asdf-vm.com/), you can install the exact versions by running:
->
-> ```bash
-> asdf install
-> ```
+CI runs the same checks on PRs and `master`, including real database/queue tests and Chromium. Dependency updates are proposed weekly. oRPC stays on the latest stable release; version 2 is currently a prerelease.
 
-### Quick Start
+## Add a feature
 
-1.  **Clone & Setup**
+Start with a schema in `contracts/src/orpc`, implement it in `backend/src/rpc/routers`, then consume its inferred client in a frontend. Put business rules in a service and let the database enforce uniqueness. Translate expected failures into declared contract errors; never return ORM entities directly.
 
-    ```bash
-    # Clone into a new directory (e.g., my-app)
-    git clone git@github.com:josehdez01/monorepo-fillstack-template.git my-app
-    cd my-app
+Generators provide compatible starting points:
 
-    # Optional: Reset git history to start fresh
-    rm -rf .git
-    git init
-    git add .
-    git commit -m "Initial commit"
-
-    # Install dependencies
-    pnpm install
-    ```
-
-2.  **Setup Environment**
-
-    ```bash
-    # Materialize .env files from examples
-    pnpm env:setup
-
-    # Optionally verify env wiring across projects
-    pnpm env:doctor
-    ```
-
-3.  **Start Infrastructure**
-
-    ```bash
-    # Starts Postgres & Redis
-    pnpm infra:up
-    ```
-
-    - Stop services: `pnpm infra:down`
-
-4.  **Initialize Database**
-
-    ```bash
-    # Generate entities registry and run migrations
-    pnpm -C backend db:entities:gen
-    pnpm -C backend db:migrate:up
-    ```
-
-### Replace Sample Schema & Create Your Initial Migration
-
-- Delete or rewrite the sample entities in `backend/src/db/entities` (e.g., `user.ts`, `session.ts`) to match your domain, then update the registry file if needed.
-- Remove the example migration artifacts from `backend/migrations/` (the `Migration*.ts` file and `.snapshot-app.json`) so you start clean.
-- With Postgres running (`pnpm infra:up`), generate your migration for the new schema:
-
-    ```bash
-    pnpm -C backend db:entities:gen
-    pnpm -C backend db:migrate:create
-    pnpm -C backend db:migrate:up
-    ```
-
-5.  **Run Development Servers**
-
-    ```bash
-    pnpm dev:all
-    ```
-
-    - Backend: http://localhost:3000
-    - Frontend (User App): http://localhost:5175
-
-Backend runtime roles
-
-- `ROLE=api`: runs only the HTTP/RPC server; queues are initialized for publishing but workers do not run.
-- `ROLE=worker`: runs only queue workers (no HTTP server).
-- `ROLE=all` (default): runs both in one process, registering queues before starting workers, then starting the API.
-
-Frontend env & ORPC structure
-
-- Frontend `.env.example` files include `VITE_RPC_URL` and `VITE_ORPC_VALIDATE_REQUESTS`. Each app defines a small `src/env.ts` that parses these via `parseViteEnv` from `@template/env`, so all `import.meta.env` access is zod-validated.
-- Each frontend exposes a single ORPC client + TanStack Query helper from `src/api/orpc-client.ts`:
-    - `makeClient` constructs a typed ORPC client using the shared contracts.
-    - A singleton `orpc` is created in that module using `getPublicEnv()` and can be imported anywhere in the app (`import { orpc } from '@/api/orpc-client'`), avoiding prop drilling or router-context coupling for data fetching.
-
-## Project Structure
-
-```
-.
-├── backend/            # Main backend application (Hono)
-├── contracts/          # Shared API contracts and Zod schemas
-├── frontend/           # Frontend applications
-│   ├── landing_page/   # Marketing site
-│   ├── user_app/       # Main user dashboard
-│   └── admin_app/      # Admin dashboard
-├── packages/           # Shared internal libraries
-│   ├── ui/             # Design system & UI components
-│   ├── env/            # Env parsing helpers for Node/Vite
-│   ├── logger/         # Structured logging
-│   └── e2e/            # Playwright end-to-end tests
-├── infra/              # Infrastructure (Docker Compose)
-└── turbo/              # Turborepo configuration & generators
+```sh
+pnpm gen package --args billing-utils
+pnpm gen app --args customer-portal
+pnpm gen db-entity --args invoice
+pnpm gen feature --args invoices
+pnpm gen queue --args send-receipt
 ```
 
-## ⚡ Generators
+Package and app generators use the shared dependency catalog. Entity generation updates the explicit registry. Feature generation registers its contract and router. Queue generation creates a Torero contract and implementation; add them to the two queue routers before publishing. After adding a package, run `pnpm install` and `pnpm build` to generate routes and verify its wiring.
 
-This template uses `@turbo/gen` to automate the creation of new packages and applications. This ensures consistency, type safety, and saves time by handling boilerplate setup.
+For entity changes, generate and review a migration, then apply it:
 
-### Why Generators?
-
-- **Consistency**: All packages start with the same structure, configuration, and dependencies.
-- **Type Safety**: New packages are automatically wired up to the TypeScript project references.
-- **Speed**: Skip the manual setup of `package.json`, `tsconfig.json`, and folder structures.
-- **Best Practices**: Enforces the monorepo's architectural patterns from day one.
-
-### Usage
-
-#### Generate a New Package
-
-Scaffold a new shared library or utility package.
-
-```bash
-pnpm gen package
+```sh
+pnpm --filter @template/backend db:migrate:create
+pnpm --filter @template/backend db:migrate:up
 ```
 
-**Prompts:**
+The sample schema is migration-backed. Keep its history when evolving an existing database; new projects can replace the sample entities and create a fresh initial migration before their first deployment.
 
-- **Name**: The name of the package (e.g., `ui`, `logger`, `utils`).
-- **Type**: The type of package (e.g., `ui`, `config`, `utility`).
+## Background jobs
 
-**Example:**
+`contracts/src/queues/sum.ts` defines the portable contract; `backend/src/queues/sum-queue.ts` implements it. Jobs get a fresh MikroORM request context and scoped logger. Producers and workers use the same queue prefix, and shutdown drains requests and jobs before closing the ORM.
 
-```bash
-pnpm gen package --args name=my-utils type=utility
-```
+- `ROLE=all`: API and workers together for local development or a small deployment.
+- `ROLE=api`: API and producer connections only.
+- `ROLE=worker`: workers only, without an HTTP listener.
 
-#### Generate a New App
+With `pnpm dev` running, try `pnpm --filter @template/backend jobs:demo` to publish a job and wait for its result.
 
-Scaffold a new frontend application with Vite, TanStack Router, and ORPC pre-configured.
+Publish through the queue runtime's inferred `jobs` tree. Use stable job IDs or deduplication where appropriate, and make external side effects idempotent. A job timeout signals cooperative cancellation; it does not roll back a database transaction or undo an external request. A database write followed by queue publication is not atomic; use an outbox when that guarantee matters.
 
-```bash
-pnpm gen app
-```
+## Contributing
 
-**Prompts:**
-
-- **Name**: The name of the app (e.g., `dashboard`, `marketing`).
-
-**Example:**
-
-```bash
-pnpm gen app --args name=dashboard
-```
-
-#### Generate a New Queue (Backend)
-
-Create a typed BullMQ queue (via `torero-mq`) with zod input/output and sensible defaults.
-
-```bash
-pnpm gen queue
-# or non-interactive
-pnpm gen queue --args name=email-send
-```
-
-The file is created at `backend/src/queues/<name>-queue.ts`. Import it in `backend/src/queues/index.ts` to register it at startup.
-
-#### Generate a New DB Entity + Repository
-
-Scaffold a MikroORM entity and repository.
-
-```bash
-pnpm gen db-entity
-# or non-interactive
-pnpm gen db-entity --args name=Invoice
-```
-
-Outputs under `backend/src/db/{entities,repositories}`.
-
-Note: We do not provide an RPC generator by design; follow `backend/src/rpc/README.md` for contract-first patterns and examples.
-
-## 🪄 Mint Your Project
-
-When forking this repo, quickly re-scope all `@template/*` packages to your org scope.
-
-> Before minting: install the prerequisites (Node, pnpm) and run `pnpm install` so the `tsx` runner used by the script is available.
-
-```bash
-pnpm mint -- --scope @acme
-```
-
-What it does:
-
-- Rewrites workspace package names from `@template/*` to `@acme/*`
-- Updates import specifiers `@template/...` across the codebase
-- Leaves frontend app names as-is (you can rename later)
-
-Dry run:
-
-```bash
-pnpm mint -- --scope @acme --dry
-```
-
-## Development Workflow
-
-- **Build**: `pnpm build`
-- **Test**: `pnpm test`
-- **Lint (fixes)**: `pnpm lint`
-- **Lint check (CI)**: `pnpm lint:check`
-- **Format**: `pnpm format`
-- **Typecheck**: `pnpm typecheck`
-
-## Local Testing
-
-- Start Postgres (Docker) and run tests end-to-end with a fast template DB:
-    - `pnpm -C backend test:local`
-- After schema changes, force rebuild the template and run tests:
-    - `pnpm -C backend test:local:rebuild`
-- Optional: customize test env
-    - Copy `backend/.env.test.example` to `backend/.env.test.local` and adjust `TEST_DATABASE_URL` if you want tests to use a different Postgres DB than the default `app`.
-    - You can also manage services manually with `pnpm -C backend test:db:up` and `pnpm -C backend test:db:down`.
-    - More details: `backend/docs/testing.md`.
-
-## Env Typing
-
-- Backend parses env with zod in `backend/src/config/env.ts`.
-- Frontend can parse `VITE_*` vars with `@template/env`:
-
-```ts
-// frontend/*/src/env.ts
-import { z } from 'zod';
-import { parseViteEnv } from '@template/env';
-
-export const env = parseViteEnv({
-    VITE_RPC_URL: z.string().url(),
-});
-```
-
-## Entities and IDs
-
-- All entities extend a canonical `BaseEntity` providing an autoincrement `id` and timestamps (`created_at`, `updated_at`).
-- Avoid type drift by deriving DTOs from entity definitions and referencing ids from the entity type itself:
-
-```ts
-// backend/src/db/entities/user.ts
-import type { EntityDTO } from '@mikro-orm/core';
-
-export type User = EntityDTO<typeof UserEntity>;
-// Use `User['id']` wherever an id type is needed.
-```
-
-- In contracts, brand numeric IDs ad-hoc with `entityId('EntityName')` (`contracts/src/utils/entity-id.ts`) to keep schemas lean while preserving branded types end-to-end.
-
-## License
-
-MIT
+Run `pnpm check`, `pnpm test:integration`, and `pnpm test:e2e` before opening a PR. Include a regression test for behavior changes and keep the documented clean-clone flow working. [Security reporting](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [MIT license](LICENSE).

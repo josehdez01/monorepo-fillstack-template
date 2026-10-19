@@ -1,10 +1,5 @@
-import type { EntityManager } from '@mikro-orm/core';
-
-export function create{{pascalCase name}}Service({ em }: { em: EntityManager }) {
-return {
-async findAll() {
-// return await em.find(Entity, {});
-return { message: 'Not implemented' };
-},
-};
+export function create{{pascalCase name}}Service() {
+    return {
+        async findAll() { return { message: 'Build {{name}} here' }; },
+    };
 }

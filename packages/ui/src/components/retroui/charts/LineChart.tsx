@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import React from 'react';
 import {
     CartesianGrid,
@@ -30,7 +30,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
     (
         {
             data = [],
-            index,
+            index: indexKey,
             categories = [],
             strokeColors = ['var(--foreground)'],
             tooltipBgColor = 'var(--background)',
@@ -56,7 +56,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />}
 
                         <XAxis
-                            dataKey={index}
+                            dataKey={indexKey}
                             axisLine={false}
                             tickLine={false}
                             className="text-xs fill-muted-foreground"
@@ -87,7 +87,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                        {index}
+                                                        {indexKey}
                                                     </span>
                                                     <span className="font-bold text-muted-foreground">
                                                         {label}
@@ -96,7 +96,9 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                                                 {payload.map((entry, index) => (
                                                     <div key={index} className="flex flex-col">
                                                         <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                            {entry.dataKey}
+                                                            {typeof entry.dataKey === 'function'
+                                                                ? 'Value'
+                                                                : entry.dataKey}
                                                         </span>
                                                         <span
                                                             className="font-bold"
@@ -114,7 +116,8 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                         )}
 
                         {categories.map((category, index) => {
-                            const strokeColor = strokeColors[index] || strokeColors[0];
+                            const strokeColor =
+                                strokeColors[index] || strokeColors[0] || 'currentColor';
 
                             return (
                                 <Line

@@ -1,5 +1,5 @@
-import { Badge } from '@/components/retroui';
-import { Table } from '@/components/retroui/Table';
+import { Badge } from '..';
+import { Table } from '../Table';
 
 const transactions = [
     {

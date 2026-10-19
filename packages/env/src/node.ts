@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { parseEnv } from 'node:util';
 import { type ZodIssue, z } from 'zod';
 
 export type EnvShape<Schema extends z.ZodTypeAny> = z.infer<Schema>;
@@ -15,24 +16,8 @@ export function loadEnvFile(path: string, options: LoadEnvFilesOptions = {}): vo
     if (!existsSync(abs)) {
         return;
     }
-    const content = readFileSync(abs, 'utf8');
-    for (const line of content.split(/\r?\n/)) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) {
-            continue;
-        }
-        const eq = trimmed.indexOf('=');
-        if (eq === -1) {
-            continue;
-        }
-        const key = trimmed.slice(0, eq).trim();
-        let val = trimmed.slice(eq + 1).trim();
-        if (
-            (val.startsWith('"') && val.endsWith('"')) ||
-            (val.startsWith("'") && val.endsWith("'"))
-        ) {
-            val = val.slice(1, -1);
-        }
+    // Match Node's .env semantics: comments, export prefixes, quoted # and multiline values.
+    for (const [key, val] of Object.entries(parseEnv(readFileSync(abs, 'utf8')))) {
         if (!override && Object.prototype.hasOwnProperty.call(process.env, key)) {
             continue;
         }

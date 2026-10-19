@@ -1,3 +1,1 @@
-export interface RouterContext {
-    authed: boolean;
-}
+export interface RouterContext {}

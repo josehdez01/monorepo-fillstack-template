@@ -1,6 +1,6 @@
-import { Button } from '@/components/retroui/Button';
-import { Dialog } from '@/components/retroui/Dialog';
-import { Text } from '@/components/retroui/Text';
+import { Button } from '../Button';
+import { Dialog } from '../Dialog';
+import { Text } from '../Text';
 import { useState } from 'react';
 
 type Variants = 'auto' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'screen';

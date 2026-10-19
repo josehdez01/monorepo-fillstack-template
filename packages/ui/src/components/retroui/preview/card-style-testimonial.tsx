@@ -1,6 +1,6 @@
-import { Avatar } from '@/components/retroui/Avatar';
-import { Card } from '@/components/retroui/Card';
-import { Text } from '@/components/retroui/Text';
+import { Avatar } from '../Avatar';
+import { Card } from '../Card';
+import { Text } from '../Text';
 
 const TestimonialCard = () => {
     return (

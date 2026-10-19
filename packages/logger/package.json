@@ -15,10 +15,18 @@
     },
     "license": "MIT",
     "dependencies": {
-        "pino": "10.1.0"
+        "pino": "catalog:"
     },
     "devDependencies": {
-        "tsdown": "0.15.12",
-        "typescript": "5.9.3"
+        "tsdown": "catalog:",
+        "typescript": "catalog:"
+    },
+    "exports": {
+        ".": {
+            "development": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
     }
 }

@@ -33,16 +33,6 @@ async function checkBackend(mode: 'development' | 'test'): Promise<CheckResult> 
             process.env.NODE_ENV = 'development';
         }
 
-        const envFiles =
-            mode === 'test'
-                ? ['.env.test.local', '.env.test', '.env.local', '.env']
-                : ['.env.local', '.env'];
-        loadEnvFiles(envFiles, { cwd });
-
-        if (mode === 'test' && process.env.TEST_DATABASE_URL && !process.env.DATABASE_URL) {
-            process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-        }
-
         try {
             const { getEnv, resetEnvCache } = await import('../../backend/src/config/env.ts');
             resetEnvCache?.();
@@ -54,7 +44,7 @@ async function checkBackend(mode: 'development' | 'test'): Promise<CheckResult> 
                 name: 'backend',
                 mode,
                 ok: true,
-                details: `DATABASE_URL=${db}, REDIS_URL=${redis}, NODE_ENV=${env.NODE_ENV}, ROLE=${env.ROLE}`,
+                details: `database=${new URL(db).hostname}, redis=${new URL(redis).hostname}, NODE_ENV=${env.NODE_ENV}, ROLE=${env.ROLE}`,
             };
         } catch (err) {
             return {
@@ -79,7 +69,7 @@ async function checkFrontend(name: string, dir: string): Promise<CheckResult> {
 
             const schema = z.object({
                 VITE_RPC_URL: z.string().url(),
-                VITE_ORPC_VALIDATE_REQUESTS: z.coerce.boolean(),
+                VITE_ORPC_VALIDATE_REQUESTS: z.stringbool(),
             });
 
             const parsed = schema.safeParse({
@@ -129,7 +119,9 @@ async function main() {
     process.exit(hadError ? 1 : 0);
 }
 
-main().catch((err) => {
+try {
+    await main();
+} catch (err) {
     console.error('[env:doctor] unexpected error', err);
-    process.exit(1);
-});
+    process.exitCode = 1;
+}

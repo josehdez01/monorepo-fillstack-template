@@ -1,16 +1,18 @@
 import { defineConfig } from 'tsdown';
 
+// This is an application, not a package: bundle first-party code, keep dependencies external.
+// Migration classes are explicitly registered so the production bundle never scans TS files.
 export default defineConfig({
-    entry: [
-        'src/**/*.ts',
-        'src/**/*.tsx',
-        // Exclude tests from build output; still typechecked via `tsc --noEmit`
-        '!src/**/*.test.ts',
-        '!src/**/*.spec.ts',
-        '!src/**/*.test.tsx',
-        '!src/**/*.spec.tsx',
-    ],
-    unbundle: true,
+    entry: {
+        index: 'src/index.ts',
+        'scripts/queue-demo': 'src/scripts/queue-demo.ts',
+        'scripts/migrations-up': 'src/scripts/migrations-up.ts',
+        'scripts/migrations-down': 'src/scripts/migrations-down.ts',
+    },
     outDir: 'dist',
-    dts: true,
+    fixedExtension: false,
+    platform: 'node',
+    target: 'node26',
+    dts: false,
+    sourcemap: true,
 });

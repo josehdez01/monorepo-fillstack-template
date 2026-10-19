@@ -1,18 +1,27 @@
 {
-"extends": "../../tsconfig.base.json",
-"compilerOptions": {
-"composite": true,
-"outDir": "dist",
-"jsx": "react-jsx",
-"types": ["vite/client"],
-"noEmit": true,
-"baseUrl": ".",
-"paths": {
-"@/*": ["./src/*"]
-},
-"module": "ESNext",
-"moduleResolution": "Bundler"
-},
-"include": ["src", "vite.config.ts", "env.d.ts"],
-"exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "jsx": "react-jsx",
+        "types": [
+            "vite/client"
+        ],
+        "noEmit": true,
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "module": "ESNext",
+        "moduleResolution": "Bundler"
+    },
+    "include": [
+        "src",
+        "vite.config.ts",
+        "env.d.ts"
+    ],
+    "exclude": [
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx"
+    ]
 }

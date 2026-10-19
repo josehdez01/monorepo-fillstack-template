@@ -1,41 +1,47 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { StarterShell } from '@template/ui/starter-shell';
 import App from '@/App';
 import { useSession } from '@/app/use-session';
 
 function IndexRouteComponent() {
-    const { hasSession, isLoading, error, retry } = useSession();
-
-    if (isLoading || (!hasSession && !error)) {
-        return (
-            <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-                    <p className="text-gray-500 font-medium">Loading session...</p>
-                </div>
-            </div>
-        );
+    const { hasSession, isLoading, error, retry, restart, end } = useSession();
+    if (hasSession) {
+        return <App onRestartSession={restart} onEndSession={end} />;
     }
-
-    if (error && !hasSession) {
-        return (
-            <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                    <p className="text-red-500 font-medium">Failed to load session.</p>
-                    <button
-                        type="button"
-                        onClick={retry}
-                        className="rounded bg-blue-600 px-4 py-2 text-white"
-                    >
-                        Retry
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    return <App />;
+    return (
+        <StarterShell
+            area="workspace"
+            eyebrow="Your working example"
+            title="Let's get connected."
+            description="A real API, a real database, and a small place to try them together."
+        >
+            <section className="panel center-state" aria-label="Demo session">
+                {isLoading ? (
+                    <p role="status">Starting your demo session…</p>
+                ) : error ? (
+                    <>
+                        <h2>We couldn't connect.</h2>
+                        <p className="muted">
+                            Check that the API is running and demo sessions are enabled. Your
+                            existing data is safe.
+                        </p>
+                        <button className="button" onClick={retry}>
+                            Try again
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <h2>Your demo session has ended.</h2>
+                        <p className="muted">
+                            The server revoked this session. Start a fresh one to keep exploring.
+                        </p>
+                        <button className="button" onClick={restart}>
+                            Start a demo session
+                        </button>
+                    </>
+                )}
+            </section>
+        </StarterShell>
+    );
 }
-
-export const Route = createFileRoute('/')({
-    component: IndexRouteComponent,
-});
+export const Route = createFileRoute('/')({ component: IndexRouteComponent });

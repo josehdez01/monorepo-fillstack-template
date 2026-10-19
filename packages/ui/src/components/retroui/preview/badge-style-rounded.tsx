@@ -1,4 +1,4 @@
-import { Badge } from '@/components/retroui/Badge';
+import { Badge } from '../Badge';
 
 export default function BadgeStyleRounded() {
     return (

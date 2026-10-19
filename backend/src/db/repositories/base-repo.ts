@@ -19,19 +19,21 @@ export function createBaseRepository<T extends { id: unknown }>(
 
         async create(data: RequiredEntityData<T>): Promise<T> {
             const instance = repo.create(data);
-            await em.persistAndFlush(instance);
+            em.persist(instance);
+            await em.flush();
             return instance;
         },
 
         async deleteById(id: T['id']): Promise<void> {
             const instance = await repo.findOne({ id } as FilterQuery<T>);
             if (instance) {
-                await em.removeAndFlush(instance);
+                em.remove(instance);
+                await em.flush();
             }
         },
 
         // Expose the underlying repo for custom queries if needed,
         // though ideally we wrap everything.
-        _repo: repo,
+        repository: repo,
     };
 }

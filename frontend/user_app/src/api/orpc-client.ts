@@ -5,6 +5,7 @@ import { RequestValidationPlugin } from '@orpc/contract/plugins';
 import { appContract, type AppContract } from '@template/contracts/orpc/contract';
 import { createTanstackQueryUtils } from '@orpc/tanstack-query';
 import { getPublicEnv } from '@/env';
+import { getSessionId } from '@/app/session-store';
 
 export type AppClient = ContractRouterClient<AppContract>;
 
@@ -19,12 +20,14 @@ export function makeClient({ baseUrl, validateRequests = true }: MakeClientOptio
     return createORPCClient(
         new RPCLink({
             url,
+            // Resolve fetch at call time so test instrumentation and browser policies apply.
+            fetch: (request, init) => globalThis.fetch(request, init),
             plugins,
             headers: () => {
                 if (typeof window === 'undefined') {
                     return {};
                 }
-                const sessionId = window.localStorage.getItem('sessionId');
+                const sessionId = getSessionId();
                 if (!sessionId) {
                     return {};
                 }
@@ -38,7 +41,7 @@ export function makeClient({ baseUrl, validateRequests = true }: MakeClientOptio
 
 const env = getPublicEnv();
 
-const client = makeClient({
+export const client = makeClient({
     baseUrl: env.VITE_RPC_URL,
     validateRequests: env.VITE_ORPC_VALIDATE_REQUESTS,
 });

@@ -6,3 +6,5 @@ migrations
 .turbo
 turbo/generators/templates/**
 **/routeTree.gen.ts
+
+pnpm-lock.yaml

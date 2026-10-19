@@ -14,7 +14,14 @@
         "format:check": "prettier --check ."
     },
     "devDependencies": {
-        "tsdown": "0.15.12",
-        "typescript": "5.9.3"
+        "tsdown": "catalog:",
+        "typescript": "catalog:"
+    },
+    "exports": {
+        ".": {
+            "development": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
     }
 }

@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shadcn/ui/sheet';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shadcn/ui/tooltip';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './sheet';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Button } from '@/shadcn/ui/button';
-import { Input } from '@/shadcn/ui/input';
-import { Separator } from '@/shadcn/ui/separator';
-import { Skeleton } from '@/shadcn/ui/skeleton';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { Button } from './button';
+import { Input } from './input';
+import { Separator } from './separator';
+import { Skeleton } from './skeleton';
+import { useIsMobile } from '../../hooks/use-mobile';
+import { cn } from '../../lib/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { PanelLeft } from 'lucide-react';
 

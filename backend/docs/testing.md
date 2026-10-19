@@ -1,27 +1,9 @@
-Backend Testing and DB Templates
+# Backend tests
 
-DB Templates (Fast Ephemeral Databases)
+`pnpm --filter @template/backend test` runs deterministic unit tests with no services. `pnpm test:integration` at the repository root starts a disposable PostgreSQL/Redis Compose project on random loopback ports, runs the backend integration suite, and removes its containers/volumes even after failure. It never uses development service volumes.
 
-- Tests use `TestDbManager` to create ephemeral databases by cloning a template database.
-- The template name includes a schema fingerprint (hash of the canonical create-schema SQL). Any schema change yields a new template name, ensuring templates are always up-to-date.
-- Env defaults for tests come from code (`infra/env/defaults.ts`) and match `docker-compose` (`postgres://postgres:postgres@localhost:5432/app`, `redis://localhost:6379`).
-- Env overrides:
-    - `TEST_DATABASE_URL` overrides `DATABASE_URL` during tests if you prefer a separate base DB.
-    - `TEST_DB_REBUILD_TEMPLATE=1` forces rebuilding the template.
+Integration requires `TEST_INTEGRATION=1`, `NODE_ENV=test`, an explicit `TEST_DATABASE_URL` whose database name includes `test`, and `TEST_REDIS_URL`. The root runner supplies all of these. Avoid invoking integration tests against application databases.
 
-Usage in Tests
+`TestDbManager` fingerprints migration files and initializes a migration-backed template under a PostgreSQL advisory lock. Each suite receives an independently named cloned database. ORM configuration receives that database URL directly; tests never mutate `process.env.DATABASE_URL` to redirect a cached configuration import. Only databases owned by this manager may be dropped. There is no refresh-application-database helper.
 
-1. Run `pnpm infra:up` and `pnpm env:setup` to materialize `.env` files (defaults match docker-compose). Stop services with `pnpm infra:down` when you’re done.
-2. In your test `beforeAll`, call `new TestDbManager().createEphemeral()` to get a unique DB URL, set `process.env.DATABASE_URL` to it, then initialize MikroORM.
-3. After tests, close ORM and `dropDatabase(name)` to clean up.
-
-CI Example
-
-- The provided GitHub Actions workflow starts Postgres/Redis services, materializes a test DB template, and runs the full suite with `DATABASE_URL=postgres://postgres:postgres@localhost:5432/app` and `REDIS_URL=redis://localhost:6379`.
-
-Schema Validation
-
-- Tests call `getEnv()` to validate environment variables using Zod.
-- Required non-secret variables get default placeholders in tests. For this template, `backend/.env.test.example` mirrors `.env.example` with worker queues disabled.
-
-Example: see `backend/src/rpc/users.test.ts` for an end-to-end test using `RPCHandler` and the DB template manager.
+Coverage includes the actual Hono/oRPC request boundary, session expiry/revocation, production demo denial, concurrent duplicate email conflicts, persisted readback, Torero worker startup and shutdown, startup rollback, and close during initialization. Add feature tests at both domain and transport boundaries when they verify different behavior. Use `expectTypeOf` for inference rather than runtime assertions on fabricated entities.

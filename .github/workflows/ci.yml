@@ -1,50 +1,38 @@
-name: ci
+name: CI
 on:
     push:
-        branches: [main]
+        branches: [master]
     pull_request:
-        branches: [main]
+    workflow_dispatch:
+permissions:
+    contents: read
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 jobs:
-    build:
+    verify:
         runs-on: ubuntu-latest
-        services:
-            postgres:
-                image: postgres:16
-                ports:
-                    - 5432:5432
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: app
-                options: >-
-                    --health-cmd="pg_isready -U postgres"
-                    --health-interval=10s
-                    --health-timeout=5s
-                    --health-retries=5
-            redis:
-                image: redis:7
-                ports:
-                    - 6379:6379
+        timeout-minutes: 25
         steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
+            - uses: actions/checkout@v7.0.1
+            - uses: pnpm/action-setup@v6.1.0
+            - uses: actions/setup-node@v7.1.0
               with:
-                  node-version: 24.11.0
-                  cache: 'pnpm'
-            - uses: pnpm/action-setup@v4
-              with:
-                  version: 10.20.0
+                  node-version-file: .node-version
+                  cache: pnpm
             - run: pnpm install --frozen-lockfile
-            - run: pnpm lint:check
-            - run: pnpm typecheck
-            - name: Prepare test DB template
-              env:
-                  DATABASE_URL: postgres://postgres:postgres@localhost:5432/app
-                  REDIS_URL: redis://localhost:6379
-              run: pnpm -C backend test:db:template
-            - name: Test
-              env:
-                  DATABASE_URL: postgres://postgres:postgres@localhost:5432/app
-                  REDIS_URL: redis://localhost:6379
-              run: pnpm test -- --coverage
-            - run: pnpm build
+            - run: pnpm env:setup && pnpm env:doctor
+            - run: pnpm check
+            - run: pnpm audit --audit-level=low
+            - run: pnpm test:generators
+            - run: pnpm test:integration
+            - run: pnpm --filter @template/e2e exec playwright install --with-deps chromium
+            - run: pnpm test:e2e
+            - uses: actions/upload-artifact@v7.0.2
+              if: failure()
+              with:
+                  name: browser-test-results
+                  path: |
+                      packages/e2e/playwright-report
+                      packages/e2e/test-results
+                  retention-days: 7

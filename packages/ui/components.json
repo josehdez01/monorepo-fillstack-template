@@ -4,13 +4,15 @@
     "rsc": false,
     "tsx": true,
     "tailwind": {
-        "config": "tailwind.config.ts",
-        "css": "src/styles.css",
+        "config": "",
+        "css": "src/theme.css",
         "baseColor": "neutral",
         "cssVariables": true
     },
     "aliases": {
-        "components": "@/retroui",
-        "utils": "@/lib/utils"
+        "components": "@/components",
+        "ui": "@/shadcn/ui",
+        "utils": "@template/ui/lib/utils",
+        "hooks": "@template/ui/hooks"
     }
 }

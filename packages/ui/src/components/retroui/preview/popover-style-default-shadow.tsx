@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover, Label, Button, Input } from '@/components/retroui';
+import { Popover, Label, Button, Input } from '..';
 
 export default function PopoverStyleDefaultShadow() {
     return (

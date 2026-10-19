@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import type { ComponentProps, JSX } from 'react';
 import * as RadioPrimitive from '@radix-ui/react-radio-group';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -49,8 +49,7 @@ export const RadioGroupRoot: (props: RadioGroupProps) => JSX.Element = ({
 }: RadioGroupProps) => <RadioPrimitive.Root className={cn('grid gap-2', className)} {...props} />;
 
 interface RadioProps
-    extends ComponentProps<typeof RadioPrimitive.Item>,
-        VariantProps<typeof radioVariants> {}
+    extends ComponentProps<typeof RadioPrimitive.Item>, VariantProps<typeof radioVariants> {}
 
 export const RadioItem: (props: RadioProps) => JSX.Element = ({
     children,

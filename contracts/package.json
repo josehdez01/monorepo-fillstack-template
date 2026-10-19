@@ -2,15 +2,16 @@
     "name": "@template/contracts",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.js",
+    "main": "dist/orpc/contract.js",
     "scripts": {
-        "test": "vitest",
+        "test": "vitest run",
         "build": "tsdown",
         "typecheck": "tsc --noEmit -p tsconfig.json",
         "lint": "oxlint --fix .",
         "lint:check": "oxlint .",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "test:watch": "vitest"
     },
     "keywords": [],
     "author": "",
@@ -18,41 +19,39 @@
     "type": "module",
     "exports": {
         "./orpc/*": {
+            "development": "./src/orpc/*.ts",
             "types": "./dist/orpc/*.d.ts",
             "import": "./dist/orpc/*.js",
             "default": "./dist/orpc/*.js"
         },
         "./types/*": {
+            "development": "./src/types/*.ts",
             "types": "./dist/types/*.d.ts",
             "import": "./dist/types/*.js",
             "default": "./dist/types/*.js"
         },
         "./utils/*": {
+            "development": "./src/utils/*.ts",
             "types": "./dist/utils/*.d.ts",
             "import": "./dist/utils/*.js",
             "default": "./dist/utils/*.js"
-        }
-    },
-    "typesVersions": {
-        "*": {
-            "orpc/*": [
-                "src/orpc/*"
-            ],
-            "types/*": [
-                "src/types/*"
-            ],
-            "utils/*": [
-                "src/utils/*"
-            ]
+        },
+        "./queues/*": {
+            "development": "./src/queues/*.ts",
+            "types": "./dist/queues/*.d.ts",
+            "import": "./dist/queues/*.js",
+            "default": "./dist/queues/*.js"
         }
     },
     "dependencies": {
-        "@orpc/contract": "1.10.2",
-        "zod": "4.1.12"
+        "@orpc/contract": "catalog:",
+        "zod": "catalog:",
+        "torero-mq": "catalog:"
     },
     "devDependencies": {
-        "tsdown": "0.15.12",
-        "typescript": "5.9.3",
-        "vitest": "4.0.6"
-    }
+        "tsdown": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:"
+    },
+    "private": true
 }

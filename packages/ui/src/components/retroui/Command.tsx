@@ -1,8 +1,8 @@
 'use client';
 
 import React, { type JSX } from 'react';
-import { cn } from '@/lib/utils';
-import { Dialog } from '@/components/retroui/Dialog';
+import { cn } from '../../lib/utils';
+import { Dialog } from './Dialog';
 import { type DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Check, Search, type LucideIcon } from 'lucide-react';

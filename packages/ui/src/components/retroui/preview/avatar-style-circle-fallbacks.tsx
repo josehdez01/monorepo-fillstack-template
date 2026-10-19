@@ -1,4 +1,4 @@
-import { Avatar } from '@/components/retroui/Avatar';
+import { Avatar } from '../Avatar';
 
 export default function AvatarStyleFallback() {
     return (

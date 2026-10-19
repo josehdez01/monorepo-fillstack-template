@@ -1,83 +1,43 @@
-# Deployment Guide
+# Deploying an application
 
-## Backend Deployment
+The backend runs on Node 26.12 or later in the Node 26 line, with PostgreSQL 18 and Redis 8.10. Frontends produce static assets. Keep each environment's database, Redis prefix, CORS origins, and public API URL separate.
 
-The backend is a Node.js application that can be deployed to any container-based hosting service (AWS ECS, Google Cloud Run, DigitalOcean App Platform, Railway, Render, etc.).
+## Backend
 
-### Docker Build
+From a clean checkout:
 
-Create a `backend/Dockerfile` to package the API/worker. Example:
-
-```dockerfile
-FROM node:24-alpine AS deps
-WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY backend/package.json backend/
-COPY contracts/package.json contracts/
-COPY packages packages
-RUN corepack enable && pnpm install --frozen-lockfile
-
-FROM deps AS build
-WORKDIR /app/backend
-RUN pnpm db:entities:gen
-RUN pnpm build
-
-FROM node:24-alpine AS runner
-WORKDIR /app
-COPY --from=build /app/backend/dist ./dist
-COPY backend/package.json ./
-ENV NODE_ENV=production
-CMD ["node", "dist/index.js"]
+```sh
+pnpm install --frozen-lockfile
+pnpm exec turbo run build --filter=@template/backend
 ```
 
-Build it with:
+Ship the workspace's production dependencies and build artifacts together. `backend/dist` alone is not a standalone application: its external dependencies include the built `contracts`, `env`, and `logger` packages. Deploying the workspace preserves pnpm's links; do not copy a symlinked `node_modules` directory independently of its targets.
 
-```bash
-docker build -f backend/Dockerfile -t my-backend .
+Set `NODE_ENV=production`, `DATABASE_URL`, and `REDIS_URL` in the process environment. Production never loads local `.env` files and requires explicit connection URLs. Set `CORS_ORIGINS` to the comma-separated frontend origins, `QUEUE_PREFIX` to a stable application/environment identifier, and `PORT` / `HOST` as required by your host. Only enable `TRUST_PROXY=true` behind a trusted proxy that overwrites incoming forwarding headers.
+
+Run the **built** migration entrypoint once in a release job before starting replicas:
+
+```sh
+node backend/dist/scripts/migrations-up.js
+node backend/dist/index.js
 ```
 
-2.  **Environment Variables**:
-    Ensure the following variables are set in your production environment:
-    - `DATABASE_URL`: Connection string to your Postgres database.
-    - `REDIS_URL`: Connection string to your Redis instance.
-    - `PORT`: Port to listen on (default 3000).
-    - `ROLE`: Set to `all` for single-container deployments, or split into `api` and `worker` services.
+Migration classes are bundled through an explicit generated registry; production does not scan TypeScript source files. Review migrations before applying them. Keep backups and use forward-compatible schema changes for rolling deployments.
 
-### Database Migrations
+Use `ROLE=all` for one process, or separate `ROLE=api` and `ROLE=worker` processes with the same `QUEUE_PREFIX` and Redis. Workers do not expose HTTP. Send SIGTERM and allow enough time to finish in-flight requests and jobs; queue handlers must honor cooperative cancellation and external request deadlines. Configure HTTP probes against `/health` (liveness) and `/ready` (startup/shutdown readiness).
 
-Run migrations before starting the new version of the app. This can be done via a release command or an init container.
+Redis must use `maxmemory-policy noeviction`. Configure persistence, backups, and appropriate resource limits for your workload. BullMQ retries can repeat side effects, so use idempotency keys at the external service and an outbox when a database change must reliably enqueue work.
 
-```bash
-node dist/scripts/migrations-up.js
-# or via pnpm if available
-pnpm db:migrate:up
+The bundled examples use anonymous demo sessions and are disabled in production. Integrate authentication, service-level authorization, and request limits appropriate to your application before exposing its data. The status app does not implement admin authorization.
+
+## Frontends
+
+Set the public API URL at **build time** for each deployment:
+
+```sh
+VITE_RPC_URL=https://api.example.com pnpm exec turbo run build --filter=frontend/user_app
 ```
 
-## Frontend Deployment
+Serve `frontend/user_app/dist` with HTTPS and an SPA fallback to `index.html`. The other apps follow the same pattern. `VITE_*` values are public and must never contain credentials. Turbo includes frontend environment values in its build cache key.
 
-The frontend applications are React-Vite based Single Page Applications (SPAs). They can be deployed to any static site host (Cloudflare Pages, Vercel, Netlify, AWS S3+CloudFront).
-
-### Cloudflare Pages (Recommended)
-
-1.  **Build**:
-
-    ```bash
-    pnpm build --filter=frontend/user_app
-    ```
-
-2.  **Output Directory**:
-    The build output is located in `frontend/user_app/dist`.
-
-3.  **Routing**:
-    Ensure your host is configured to rewrite all 404s to `index.html` (SPA routing).
-
-### Environment Variables
-
-- `VITE_RPC_URL`: The URL of your deployed backend API (e.g., `https://api.myapp.com`).
-
-## Infrastructure (Optional)
-
-The `infra` folder contains a `docker-compose.yml` for local development. For production, we recommend managed services:
-
-- **Database**: AWS RDS, Google Cloud SQL, Neon, Supabase.
-- **Redis**: AWS ElastiCache, Google Cloud Memorystore, Upstash.
+Keep devtools out of production bundles. Serve hashed assets with long immutable cache lifetimes and `index.html` with a short lifetime so new deployments can be discovered. Validate a production build against the deployed API origin, including CORS and the application's actual identity/session flow.
